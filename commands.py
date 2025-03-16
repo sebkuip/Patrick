@@ -6,6 +6,10 @@ import requests
 from discord import Message, Embed
 
 
+def link(link_):
+    return f"<{link_}>"
+
+
 class Command(ABC):
     def __init__(self, key):
         self.key = key
@@ -85,6 +89,27 @@ class RemoveCommand(Command):
             return
         self.connector.remove_command(key)
         await message.reply(f"Command '{key}' removed.")
+
+
+class ApplyCommand(Command):
+    def __init__(self):
+        super().__init__("apply")
+
+    async def execute(self, message: Message):
+        parts = message.content.split()
+        if len(parts) < 2:
+            await message.reply("Specify \"student\", \"builder\", or \"engineer\".")
+            return
+        key = parts[1]
+        match key:
+            case "student":
+                await message.reply("To apply for student, hop onto `mc.openredstone.org` and run `/apply`")
+            case "builder":
+                await message.reply(f"To apply for builder, follow the steps outlined here: {link('https://discourse.openredstone.org/builder')}")
+            case "engineer":
+                await message.reply(f"To apply for engineer, follow the steps outlined here: {link('https://discourse.openredstone.org/engineer')}")
+            case _:
+                await message.reply("Specify \"student\", \"builder\", or \"engineer\".")
 
 
 class XkcdCommand(Command):

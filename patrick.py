@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 from loguru import logger
 
 import database
-from commands import BasicCommand, QuoteCommand, AddCommand, RemoveCommand, HelpCommand, DynamicHelpCommand, XkcdCommand
+from commands import BasicCommand, QuoteCommand, AddCommand, RemoveCommand, HelpCommand, DynamicHelpCommand, \
+    XkcdCommand, ApplyCommand
 
 load_dotenv(Path(__file__).parent / '.env')
 token = getenv('TOKEN')
@@ -36,6 +37,7 @@ def main():
         BasicCommand("ping", [
             "pong, I guess", "no, this is patrick", "*no, this is **patrick***", "# NO, THIS IS PATRICK"
         ]),
+        ApplyCommand(),
         QuoteCommand(),
         XkcdCommand(),
         RemoveCommand(connector),
