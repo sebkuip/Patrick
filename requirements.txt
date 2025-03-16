@@ -1,0 +1,5 @@
+loguru
+py-cord
+pyyaml
+python-dotenv
+requests
