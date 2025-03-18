@@ -1,5 +1,5 @@
 import re
-from os import getenv
+from os import getenv, listdir
 from pathlib import Path
 import logging
 
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 import database
 
-logger: logging.Logger = logging.getLogger('discord')
+logger: logging.Logger = logging.getLogger('patrick')
 logging.basicConfig(level=logging.INFO)
 
 load_dotenv(Path(__file__).parent / '.env')
@@ -29,6 +29,33 @@ class Patrick(discord.Bot):
         if message.author == client.user:
             return
         await self.process_commands(message)
+
+    async def on_ready(self):
+        await self.load_extensions()
+        logger.info(f'Logged in as {self.user}')
+
+    async def load_extensions(self):
+        logger.info("Loading extensions")
+        status = {}
+        for extension in listdir("./cogs"):
+            if extension.endswith(".py"):
+                status[extension] = "X"
+        if len(status) == 0:
+            logger.info("No extensions found")
+            return
+        errors = []
+
+        for extension in status:
+            try:
+                await bot.load_extension(f"cogs.{extension[:-3]}")
+                status[extension] = "L"
+            except Exception as e:
+                errors.append(e)
+
+        maxlen = max(len(str(extension)) for extension in status)
+        for extension in status:
+            print(f" {extension.ljust(maxlen)} | {status[extension]}")
+        logger.error(errors) if errors else logger.info("no errors during loading of extensions")
 
 def main():
     intents = discord.Intents.default()
