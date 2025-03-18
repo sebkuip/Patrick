@@ -21,7 +21,8 @@ def load_config():
         return yaml.safe_load(source)
 
 class Patrick(discord.Bot):
-    def __init__(self):
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
         intents = discord.Intents.all()
         super().__init__(command_prefix=',', intents=intents)
 
