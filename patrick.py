@@ -1,25 +1,34 @@
 import re
 from os import getenv
 from pathlib import Path
+import logging
 
 import discord
+from discord.ext import commands
 import yaml
-from discord import Message
 from dotenv import load_dotenv
-from loguru import logger
 
 import database
-from commands import BasicCommand, QuoteCommand, AddCommand, RemoveCommand, HelpCommand, DynamicHelpCommand, \
-    XkcdCommand, ApplyCommand
+
+logger: logging.Logger = logging.getLogger('discord')
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv(Path(__file__).parent / '.env')
-token = getenv('TOKEN')
-
+TOKEN: str = getenv('TOKEN')
 
 def load_config():
     with open(Path(__file__).parent / 'config.yaml', 'r') as source:
         return yaml.safe_load(source)
 
+class Patrick(discord.Bot):
+    def __init__(self):
+        intents = discord.Intents.all()
+        super().__init__(command_prefix=',', intents=intents)
+
+    async def on_message(self, message: discord.Message):
+        if message.author == client.user:
+            return
+        await self.process_commands(message)
 
 def main():
     intents = discord.Intents.default()
@@ -93,4 +102,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    patrick = Patrick()
+    patrick.run(TOKEN)
