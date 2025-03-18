@@ -10,9 +10,6 @@ from dotenv import load_dotenv
 
 import database
 
-logger: logging.Logger = logging.getLogger('patrick')
-logging.basicConfig(level=logging.INFO)
-
 load_dotenv(Path(__file__).parent / '.env')
 TOKEN: str = getenv('TOKEN')
 
@@ -23,10 +20,11 @@ def load_config():
 class Patrick(discord.Bot):
     def __init__(self, logger: logging.Logger):
         self.logger = logger
+        activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
-        super().__init__(command_prefix=',', intents=intents)
+        super().__init__(command_prefix=',', case_insensitive=True, intents=intents, activity=activity)
 
     async def on_message(self, message: discord.Message):
         if message.author == client.user:
@@ -132,5 +130,7 @@ def main():
 
 
 if __name__ == '__main__':
-    patrick = Patrick()
+    logger: logging.Logger = logging.getLogger('patrick')
+    logging.basicConfig(level=logging.INFO)
+    patrick = Patrick(logger)
     patrick.run(TOKEN)
