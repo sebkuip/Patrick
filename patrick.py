@@ -23,7 +23,9 @@ def load_config():
 class Patrick(discord.Bot):
     def __init__(self, logger: logging.Logger):
         self.logger = logger
-        intents = discord.Intents.all()
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.members = True
         super().__init__(command_prefix=',', intents=intents)
 
     async def on_message(self, message: discord.Message):
