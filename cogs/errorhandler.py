@@ -38,5 +38,5 @@ class ErrorHandler(commands.Cog):
             traceback.print_tb(error.__traceback__)
             self.bot.logger.error(error)
 
-async def setup(bot):
-    await bot.add_cog(ErrorHandler(bot))
+def setup(bot):
+    bot.add_cog(ErrorHandler(bot))
