@@ -48,7 +48,7 @@ class Patrick(discord.Bot):
 
         for extension in status:
             try:
-                await bot.load_extension(f"cogs.{extension[:-3]}")
+                await self.load_extension(f"cogs.{extension[:-3]}")
                 status[extension] = "L"
             except Exception as e:
                 errors.append(e)
