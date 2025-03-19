@@ -16,7 +16,7 @@ class ErrorHandler(commands.Cog):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.NotOwner) or isinstance(error, commands.MissingPermissions):
-            await ctx.send("You do not have permissions for this command.")
+            await ctx.send("Unauthorized :'(")
         elif isinstance(error, commands.MemberNotFound):
             await ctx.send("Member not found.")
         elif isinstance(error, commands.BadArgument):
@@ -26,7 +26,7 @@ class ErrorHandler(commands.Cog):
                 f"Command usage: `,{ctx.command.name} {ctx.command.signature}`"
             )
         elif isinstance(error, commands.CommandNotFound):
-            await ctx.send("Command not found.")
+            await ctx.send("Unrecognized command :'(")
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("Bot does not have permissions for this command.")
         elif isinstance(error, commands.DisabledCommand):

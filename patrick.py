@@ -2,11 +2,12 @@ import re
 from os import getenv, listdir
 from pathlib import Path
 import logging
+import yaml
+from dotenv import load_dotenv
+from aiohttp import ClientSession
 
 import discord
 from discord.ext import commands
-import yaml
-from dotenv import load_dotenv
 
 import database
 
@@ -17,7 +18,7 @@ def load_config():
     with open(Path(__file__).parent / 'config.yaml', 'r') as source:
         return yaml.safe_load(source)
 
-class Patrick(discord.Bot):
+class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger):
         self.logger = logger
         activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
@@ -27,11 +28,12 @@ class Patrick(discord.Bot):
         super().__init__(command_prefix=',', case_insensitive=True, intents=intents, activity=activity)
 
     async def on_message(self, message: discord.Message):
-        if message.author == client.user:
+        if message.author == self.user:
             return
         await self.process_commands(message)
 
     async def on_ready(self):
+        self.aiosession = ClientSession()
         await self.load_extensions()
         logger.info(f'Logged in as {self.user}')
 
