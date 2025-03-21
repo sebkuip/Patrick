@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from time import perf_counter
-from random import randint
+from random import randint, choice
 
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -57,6 +57,11 @@ class FunCommands(commands.Cog):
             if data is None:
                 return await ctx.send("An error occurred while fetching the comic.")
             await ctx.send(embed=self.xkcd_embed(data))
+
+    @commands.command()
+    async def protip(self, ctx):
+        random_tip = choice(self.bot.config.get("protips"))
+        await ctx.send(f"{ctx.author.display_name} Pro tip: {random_tip}")
 
 def setup(bot):
     bot.add_cog(FunCommands(bot))

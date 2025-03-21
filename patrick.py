@@ -21,6 +21,7 @@ def load_config():
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger):
         self.logger = logger
+        self.config = load_config()
         activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
         intents = discord.Intents.default()
         intents.message_content = True
