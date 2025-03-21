@@ -61,7 +61,7 @@ class FunCommands(commands.Cog):
     @commands.command()
     async def protip(self, ctx):
         random_tip = choice(self.bot.config.get("protips"))
-        await ctx.send(f"{ctx.author.display_name} Pro tip: {random_tip}")
+        await ctx.send(f"{ctx.author.display_name}: Pro Tip: {random_tip}")
 
 def setup(bot):
     bot.add_cog(FunCommands(bot))
