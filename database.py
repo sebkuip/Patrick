@@ -38,5 +38,5 @@ class Connector:
     async def remove_command(self, key):
         async with self.connection.cusror() as cur:
             query = "DELETE FROM commands WHERE key like ?"
-            await cursor.execute(query, (key,))
+            await cur.execute(query, (key,))
             await con.commit()
