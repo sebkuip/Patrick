@@ -19,9 +19,9 @@ def load_config():
         return yaml.safe_load(source)
 
 class Patrick(commands.Bot):
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, config: dict):
         self.logger = logger
-        self.config = load_config()
+        self.config = config
         activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
         intents = discord.Intents.default()
         intents.message_content = True
@@ -66,9 +66,16 @@ class Patrick(commands.Bot):
             self.logger.info(f"Reloading extension {extension}")
             self.reload_extension(extension)
 
+config = load_config()
+logging_level = config.get("logging_level", "").upper()
+if logging_level in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
+    logging.basicConfig(level=logging.getLevelName(logging_level))
+else:
+    print("Invalid logging level in config.yaml, defaulting to INFO")
+    logging.basicConfig(level=logging.INFO)
 logger: logging.Logger = logging.getLogger('patrick')
 logging.basicConfig(level=logging.INFO)
-patrick: Patrick = Patrick(logger)
+patrick: Patrick = Patrick(logger, config)
 
 @patrick.command()
 @commands.is_owner()
@@ -77,6 +84,7 @@ async def reload(ctx):
     await patrick.reload_extensions()
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
+    await ctx.message.delete(delay=5)
 
 def main():
     intents = discord.Intents.default()
