@@ -60,7 +60,7 @@ class Patrick(commands.Bot):
 
         maxlen = max(len(str(extension)) for extension in status)
         for extension in status:
-            print(f" {extension.ljust(maxlen)} | {status[extension]}")
+            logger.info(f" {extension.ljust(maxlen)} | {status[extension]}")
         logger.error(errors) if errors else logger.info("no errors during loading of extensions")
 
     async def reload_extensions(self):
@@ -70,7 +70,7 @@ class Patrick(commands.Bot):
 
 config = load_config()
 logging_level = config.get("logging_level", "").upper()
-if logging_level in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
+if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
     logging.basicConfig(level=logging.getLevelName(logging_level))
 else:
     print("Invalid logging level in config.yaml, defaulting to INFO")
