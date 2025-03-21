@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from time import perf_counter
-from random import randint, choice
+from random import randint, choice, getrandbits
 
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -62,6 +62,13 @@ class FunCommands(commands.Cog):
     async def protip(self, ctx):
         random_tip = choice(self.bot.config.get("protips"))
         await ctx.send(f"{ctx.author.display_name}: Pro Tip: {random_tip}")
+
+    @commands.command()
+    async def rng(self, ctx, num: int):
+        if num < 1:
+            return await ctx.send("Number must be greater than 0.")
+        generated = getrandbits(num)
+        await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
 
 def setup(bot):
     bot.add_cog(FunCommands(bot))
