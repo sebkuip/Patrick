@@ -5,7 +5,7 @@ from time import perf_counter
 from random import randint, choice, getrandbits
 import asyncio
 
-class FunCommands(commands.Cog):
+class RandCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -84,4 +84,4 @@ class FunCommands(commands.Cog):
         await user.remove_roles(pikl_role)
 
 def setup(bot):
-    bot.add_cog(FunCommands(bot))
+    bot.add_cog(RandCommands(bot))
