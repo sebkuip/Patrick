@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from time import perf_counter
 from random import randint, choice, getrandbits
+import asyncio
 
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -69,6 +70,18 @@ class FunCommands(commands.Cog):
             return await ctx.send("Number must be greater than 0.")
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    async def pikl(self, ctx, user: discord.Member):
+        pikl_role = discord.utils.get(ctx.guild.roles, name="pikl")
+        if pikl_role is None:
+            return await ctx.send("No pikl rank :(")
+        await user.add_roles(pikl_role)
+        await ctx.send(f"{user.mention} got pikl'd.")
+        await asyncio.sleep(120_000)
+        await user.remove_roles(pikl_role)
 
 def setup(bot):
     bot.add_cog(FunCommands(bot))
