@@ -22,6 +22,7 @@ class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
         self.logger = logger
         self.config = config
+        self.database = database.Connector()
         activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
         intents = discord.Intents.default()
         intents.message_content = True
@@ -34,6 +35,7 @@ class Patrick(commands.Bot):
         await self.process_commands(message)
 
     async def on_ready(self):
+        await self.database.connect()
         self.aiosession = ClientSession()
         await self.load_extensions()
         logger.info(f'Logged in as {self.user}')
