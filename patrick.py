@@ -61,6 +61,23 @@ class Patrick(commands.Bot):
             print(f" {extension.ljust(maxlen)} | {status[extension]}")
         logger.error(errors) if errors else logger.info("no errors during loading of extensions")
 
+    async def reload_extensions(self):
+        for extension in list(self.extensions):
+            self.logger.info(f"Reloading extension {extension}")
+            self.reload_extension(extension)
+
+logger: logging.Logger = logging.getLogger('patrick')
+logging.basicConfig(level=logging.INFO)
+patrick: Patrick = Patrick(logger)
+
+@patrick.command()
+@commands.is_owner()
+async def reload(ctx):
+    m: discord.Message = await ctx.send("Reloading extensions...")
+    await patrick.reload_extensions()
+    await m.edit(content="Reloaded extensions")
+    await m.delete(delay=5)
+
 def main():
     intents = discord.Intents.default()
     intents.message_content = True
@@ -131,9 +148,4 @@ def main():
 
     client.run(token)
 
-
-if __name__ == '__main__':
-    logger: logging.Logger = logging.getLogger('patrick')
-    logging.basicConfig(level=logging.INFO)
-    patrick = Patrick(logger)
-    patrick.run(TOKEN)
+patrick.run(TOKEN)
