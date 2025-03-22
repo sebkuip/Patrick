@@ -1,6 +1,8 @@
+import typing
+
 import discord
 from discord.ext import commands
-import typing
+
 
 def process_relay_chat(bot, message) -> typing.Tuple[discord.Message, bool]:
     if message.channel.id == bot.config["channels"]["gamechat"]:
@@ -12,13 +14,17 @@ def process_relay_chat(bot, message) -> typing.Tuple[discord.Message, bool]:
             return message, True
     return message, False
 
+
 async def get_custom_commands(bot) -> dict:
     return {row[0]: row[1] for row in await bot.database.get_commands()}
+
 
 async def process_custom_command(bot, message) -> bool:
     commands = await get_custom_commands(bot)
     if message.content[1:] in commands:
-        bot.logger.info(f"User '{message.author}' ran custom command '{message.content[1:]}'")
+        bot.logger.info(
+            f"User '{message.author}' ran custom command '{message.content[1:]}'"
+        )
         await message.channel.send(commands[message.content[1:]])
         return True
     return False

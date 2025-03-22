@@ -1,5 +1,6 @@
-import aiosqlite
 from pathlib import Path
+
+import aiosqlite
 
 
 class Connector:
@@ -10,11 +11,13 @@ class Connector:
     async def connect(self):
         self.connection = await aiosqlite.connect(self.database)
         async with self.connection.cursor() as cursor:
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS commands (
+            await cursor.execute(
+                """CREATE TABLE IF NOT EXISTS commands (
                                         key VARCHAR(128),
                                         message text,
                                         PRIMARY KEY(key)
-                                    )""")
+                                    )"""
+            )
 
     async def get_commands(self):
         async with self.connection.cursor() as cur:

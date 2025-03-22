@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from util import get_custom_commands
 
+
 class CustomCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -22,6 +23,7 @@ class CustomCommands(commands.Cog):
     async def delcommand(self, ctx, key: str):
         await self.bot.database.remove_command(key)
         await ctx.send(f"Command `{key}` removed.")
+
 
 def setup(bot):
     bot.add_cog(CustomCommands(bot))

@@ -1,7 +1,8 @@
+import traceback
+
 import discord
 from discord.ext import commands
 
-import traceback
 
 class ErrorHandler(commands.Cog):
     def __init__(self, bot):
@@ -15,7 +16,9 @@ class ErrorHandler(commands.Cog):
 
         error = getattr(error, "original", error)
 
-        if isinstance(error, commands.NotOwner) or isinstance(error, commands.MissingPermissions):
+        if isinstance(error, commands.NotOwner) or isinstance(
+            error, commands.MissingPermissions
+        ):
             await ctx.send("Unauthorized :'(")
         elif isinstance(error, commands.MemberNotFound):
             await ctx.send("Member not found.")
@@ -26,7 +29,9 @@ class ErrorHandler(commands.Cog):
                 f"Command usage: `,{ctx.command.name} {ctx.command.signature}`"
             )
         elif isinstance(error, commands.CommandNotFound):
-            self.bot.logger.info(f"User '{ctx.author}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'")
+            self.bot.logger.info(
+                f"User '{ctx.author}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
+            )
             await ctx.send("Unrecognized command :'(")
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("Bot does not have permissions for this command.")
@@ -38,6 +43,7 @@ class ErrorHandler(commands.Cog):
             await ctx.send("An unknown error occurred while processing the command.")
             traceback.print_tb(error.__traceback__)
             self.bot.logger.error(error)
+
 
 def setup(bot):
     bot.add_cog(ErrorHandler(bot))
