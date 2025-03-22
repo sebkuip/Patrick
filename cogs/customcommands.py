@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from util import get_custom_commands
+from util import get_custom_commands, is_staff
 
 
 class CustomCommands(commands.Cog):
@@ -9,7 +9,7 @@ class CustomCommands(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @is_staff()
     async def addcommand(self, ctx, key: str, *, message: str):
         commands = await get_custom_commands(self.bot)
         if key in commands:
@@ -19,7 +19,7 @@ class CustomCommands(commands.Cog):
         await ctx.send(f"Command `{key}` added.")
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @is_staff()
     async def delcommand(self, ctx, key: str):
         await self.bot.database.remove_command(key)
         await ctx.send(f"Command `{key}` removed.")

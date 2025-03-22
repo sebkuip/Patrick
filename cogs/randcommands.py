@@ -5,6 +5,8 @@ from time import perf_counter
 import discord
 from discord.ext import commands
 
+from util import is_staff
+
 
 class RandCommands(commands.Cog):
     def __init__(self, bot):
@@ -86,7 +88,7 @@ class RandCommands(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
+    @is_staff()
     async def pikl(self, ctx, user: discord.Member):
         pikl_role = discord.utils.get(ctx.guild.roles, name="pikl")
         if pikl_role is None:

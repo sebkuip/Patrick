@@ -28,3 +28,13 @@ async def process_custom_command(bot, message) -> bool:
         await message.channel.send(commands[message.content[1:]])
         return True
     return False
+
+def is_staff():
+    def predicate(ctx):
+        return discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["staff"]) is not None
+    return commands.check(predicate)
+
+def is_admin():
+    def predicate(ctx):
+        return discord.utils.get(ctx.author.roles, id=ctx.bot.config["staff"]["admin"]) is not None
+    return commands.check(predicate)

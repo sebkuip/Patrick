@@ -10,7 +10,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-import util
+from util import get_custom_commands, process_relay_chat, process_custom_command, is_admin
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -25,12 +25,12 @@ class PatrickHelp(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
-    async def get_commands_list(self):
-        custom_commands = await util.get_custom_commands(self.context.bot)
+    async def get_commands_list(self) -> list:
+        custom_commands = await get_custom_commands(self.context.bot)
         regular_commands = [command.name for command in self.context.bot.commands]
         return list(custom_commands.keys() | regular_commands)
 
-    async def generate_link(self, command_list):
+    async def generate_link(self, command_list: list) -> str:
         content = ", ".join(command_list)
         data = {"content": content, "title": "ORE Patrick", "expiry_days": 1}
         async with self.context.bot.aiosession.post(
@@ -50,7 +50,6 @@ class PatrickHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         user = self.context.author
         await self.send_help_message(user)
-
 
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
@@ -81,9 +80,9 @@ class Patrick(commands.Bot):
             return
         found = False
         if message.author.bot:
-            message, found = util.process_relay_chat(self, message)
+            message, found = process_relay_chat(self, message)
         if message.content.startswith(self.command_prefix):
-            if await util.process_custom_command(self, message):
+            if await process_custom_command(self, message):
                 return
         if not found:
             await self.process_commands(message)
@@ -133,8 +132,8 @@ class Patrick(commands.Bot):
     async def reload_extensions(self):
         for extension in list(self.extensions):
             self.logger.info(f"Reloading extension {extension}")
-            self.reload_extension(extension)
-
+            self.unload_extension(extension)
+        self.load_extensions()
 
 config = load_config()
 logging_level = config.get("logging_level", "").upper()
@@ -147,15 +146,13 @@ logger: logging.Logger = logging.getLogger("patrick")
 logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
 
-
 @patrick.command()
-@commands.is_owner()
+@is_admin()
 async def reload(ctx):
     m: discord.Message = await ctx.send("Reloading extensions...")
     await patrick.reload_extensions()
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
     await ctx.message.delete(delay=5)
-
 
 patrick.run(TOKEN)
