@@ -1,6 +1,6 @@
 channels:
   gamechat: 597852843785060357
-ingame_regex: "^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$"
+ingame_regex: '^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$'
 staff_role: 617848463438118922
 logging_level: "WARN"
 greetings:

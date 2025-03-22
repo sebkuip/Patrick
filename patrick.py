@@ -24,15 +24,19 @@ class Patrick(commands.Bot):
         self.logger = logger
         self.config = config
         self.database = database.Connector()
+        self.relay_regex = re.compile(self.config.get("ingame_regex", r"^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$"))
         activity = discord.Activity(type=discord.ActivityType.playing, name="with Python")
+
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
+
         super().__init__(command_prefix=',', case_insensitive=True, intents=intents, activity=activity)
 
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
+        message = util.process_relay_chat(self, message)
         if message.content.startswith(self.command_prefix):
             if await util.process_custom_command(self, message):
                 return
