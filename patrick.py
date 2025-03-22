@@ -44,6 +44,10 @@ class Patrick(commands.Bot):
         await self.load_extensions()
         logger.info(f'Logged in as {self.user}')
 
+    async def process_commands(self, message: Message) -> None:
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
+
     async def load_extensions(self):
         logger.info("Loading extensions")
         status = {}
