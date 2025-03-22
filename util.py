@@ -1,15 +1,16 @@
 import discord
 from discord.ext import commands
+import typing
 
-def process_relay_chat(bot, message) -> discord.Message:
+def process_relay_chat(bot, message) -> typing.Tuple[discord.Message, bool]:
     if message.channel.id == bot.config["channels"]["gamechat"]:
         match = bot.relay_regex.match(message.content)
         if match:
             author, content = match.groups()
             message.author = author
             message.content = content
-            return message
-    return message
+            return message, True
+    return message, False
 
 async def get_custom_commands(bot) -> dict:
     return {row[0]: row[1] for row in await bot.database.get_commands()}

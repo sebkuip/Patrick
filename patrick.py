@@ -36,11 +36,12 @@ class Patrick(commands.Bot):
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
-        message = util.process_relay_chat(self, message)
+        message, found = util.process_relay_chat(self, message)
         if message.content.startswith(self.command_prefix):
             if await util.process_custom_command(self, message):
                 return
-        await self.process_commands(message)
+        if not found:
+            await self.process_commands(message)
 
     async def on_ready(self):
         await self.database.connect()
