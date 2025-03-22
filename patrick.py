@@ -19,6 +19,34 @@ def load_config():
     with open(Path(__file__).parent / 'config.yaml', 'r') as source:
         return yaml.safe_load(source)
 
+class PatrickHelp(commands.HelpCommand):
+    def __init__(self, bot):
+        super().__init__()
+        self.bot = bot
+
+    async def get_commands_list(self):
+        custom_commands = await util.get_custom_commands(self.bot)
+        regular_commands = [command.name for command in self.bot.commands]
+        commands = custom_commands.keys() | regular_commands
+        return commands
+
+    async def generate_link(self, command_list):
+        content = ", ".join(text)
+        data = {"content": content, "title": "ORE Chad", "expiry_days": 1}
+        async with self.bot.aiosession.post("https://dpaste.com/api/v2/", data=data) as response:
+            return response.headers["Location"]
+
+    async def send_help_message(self, user: discord.User):
+        commands = await self.get_commands_list()
+        if len(commands) <= 7:
+            return await user.send(f"Available commands: {', '.join(commands)}")
+        link = await self.generate_link(commands)
+        return await user.send(f"Available commands: {', '.join(commands[:7])} ...\nSnipped: {link}")
+
+    async def send_bot_help(self, mapping):
+        user = self.context.author
+        await self.send_help_message(user)
+
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
         self.logger = logger
@@ -31,7 +59,7 @@ class Patrick(commands.Bot):
         intents.message_content = True
         intents.members = True
 
-        super().__init__(command_prefix=',', case_insensitive=True, intents=intents, activity=activity)
+        super().__init__(command_prefix=',', case_insensitive=True, intents=intents, activity=activity, help_command=PatrickHelp(self))
 
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
@@ -44,6 +72,7 @@ class Patrick(commands.Bot):
             await self.process_commands(message)
 
     async def on_ready(self):
+        self.logger.info("Connecting to database")
         await self.database.connect()
         self.aiosession = ClientSession()
         await self.load_extensions()
