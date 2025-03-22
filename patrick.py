@@ -15,23 +15,33 @@ from util import get_custom_commands, process_relay_chat, process_custom_command
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
 
-
 def load_config():
     with open(Path(__file__).parent / "config.yaml", "r") as source:
         return yaml.safe_load(source)
-
 
 class PatrickHelp(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
-    async def get_commands_list(self) -> list:
-        custom_commands = await get_custom_commands(self.context.bot)
-        regular_commands = [command.name for command in self.context.bot.commands]
-        return list(custom_commands.keys() | regular_commands)
+    async def get_commands_mapping(self) -> dict:
+        commands = await get_custom_commands(self.context.bot)
+        commands.update({command.name: command.signature for command in self.context.bot.commands})
+        return commands
 
-    async def generate_link(self, command_list: list) -> str:
-        content = ", ".join(command_list)
+    def format_table(self, mapping: dict) -> str:
+        maxlen_key = max(len(key) for key in mapping)
+        maxlen_value = max(len(value) for value in mapping.values())
+        text = "Available commands:\n"
+        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
+        text += f"| {'Command:'.ljust(maxlen_key)} | {'Signature/response:'.ljust(maxlen_value)} |\n"
+        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
+        text += "\n".join(
+            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |" for key, value in mapping.items()
+        )
+        text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|"
+        return text
+
+    async def generate_link(self, content: str) -> str:
         data = {"content": content, "title": "ORE Patrick", "expiry_days": 1}
         async with self.context.bot.aiosession.post(
             "https://dpaste.com/api/v2/", data=data
@@ -39,17 +49,25 @@ class PatrickHelp(commands.HelpCommand):
             return response.headers["Location"]
 
     async def send_help_message(self, user: discord.User):
-        commands = await self.get_commands_list()
+        commands = await self.get_commands_mapping()
         if len(commands) <= 7:
-            return await user.send(f"Available commands: {', '.join(commands)}")
-        link = await self.generate_link(commands)
+            return await user.send(f"Available commands: {', '.join(commands.keys())}")
+        content = self.format_table(commands)
+        link = await self.generate_link(content)
         return await user.send(
-            f"Available commands: {', '.join(commands[:7])} ...\nSnipped: {link}"
+            f"Available commands: {', '.join(list(commands.keys())[:7])} ...\nSnipped: <{link}>"
         )
 
     async def send_bot_help(self, mapping):
         user = self.context.author
         await self.send_help_message(user)
+
+    async def send_command_help(self, command):
+        user = self.context.author
+        if len(command.signature) == 0:
+            await  user.send(f"Usage: `,{command.name}`")
+        else:
+            await user.send(f"Usage: `,{command.name} {command.signature}`")
 
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
