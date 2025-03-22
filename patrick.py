@@ -42,14 +42,16 @@ class Patrick(commands.Bot):
         await self.database.connect()
         self.aiosession = ClientSession()
         await self.load_extensions()
-        logger.info(f'Logged in as {self.user}')
+        self.logger.info(f'Logged in as {self.user}')
 
-    async def process_commands(self, message: Message) -> None:
+    async def process_commands(self, message: discord.Message) -> None:
         ctx = await self.get_context(message)
+        if ctx.command is not None:
+            self.logger.info(f"User '{message.author}' ran command '{ctx.command.name}'")
         await self.invoke(ctx)
 
     async def load_extensions(self):
-        logger.info("Loading extensions")
+        self.logger.info("Loading extensions")
         status = {}
         for extension in listdir("./cogs"):
             if extension.endswith(".py"):
@@ -68,8 +70,8 @@ class Patrick(commands.Bot):
 
         maxlen = max(len(str(extension)) for extension in status)
         for extension in status:
-            logger.info(f" {extension.ljust(maxlen)} | {status[extension]}")
-        logger.error(errors) if errors else logger.info("no errors during loading of extensions")
+            self.logger.info(f" {extension.ljust(maxlen)} | {status[extension]}")
+        self.logger.error(errors) if errors else self.logger.info("no errors during loading of extensions")
 
     async def reload_extensions(self):
         for extension in list(self.extensions):

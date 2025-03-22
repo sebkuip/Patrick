@@ -26,7 +26,7 @@ class ErrorHandler(commands.Cog):
                 f"Command usage: `,{ctx.command.name} {ctx.command.signature}`"
             )
         elif isinstance(error, commands.CommandNotFound):
-            self.bot.logger.info(f"User '{ctx.author}' attempted to run an unrecognized command: '{ctx.message.content}'")
+            self.bot.logger.info(f"User '{ctx.author}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'")
             await ctx.send("Unrecognized command :'(")
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("Bot does not have permissions for this command.")
