@@ -15,7 +15,6 @@ class Connector:
                                         message text,
                                         PRIMARY KEY(key)
                                     )""")
-            await self.connection.commit()
 
     async def get_commands(self):
         async with self.connection.cursor() as cur:
@@ -30,13 +29,13 @@ class Connector:
             return await cur.fetchone()
 
     async def add_command(self, key, message):
-        with self.connection.cursor() as cur:
+        async with self.connection.cursor() as cur:
             query = "INSERT INTO commands(key, message) VALUES(?, ?)"
             await cur.execute(query, (key, message))
-            await cur.commit()
+            await self.connection.commit()
 
     async def remove_command(self, key):
-        async with self.connection.cusror() as cur:
+        async with self.connection.cursor() as cur:
             query = "DELETE FROM commands WHERE key like ?"
             await cur.execute(query, (key,))
-            await con.commit()
+            await self.connection.commit()

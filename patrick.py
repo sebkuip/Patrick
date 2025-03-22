@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands
 
 import database
+import util
 
 load_dotenv(Path(__file__).parent / '.env')
 TOKEN: str = getenv('TOKEN')
@@ -32,6 +33,9 @@ class Patrick(commands.Bot):
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
+        if message.content.startswith(self.command_prefix):
+            if await util.process_custom_command(self, message):
+                return
         await self.process_commands(message)
 
     async def on_ready(self):

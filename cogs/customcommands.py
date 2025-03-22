@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from util import get_custom_commands
+
 class CustomCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -8,6 +10,10 @@ class CustomCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     async def addcommand(self, ctx, key: str, *, message: str):
+        commands = await get_custom_commands(self.bot)
+        if key in commands:
+            await ctx.send(f"Command `{key}` already exists.")
+            return
         await self.bot.database.add_command(key, message)
         await ctx.send(f"Command `{key}` added.")
 
