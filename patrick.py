@@ -93,6 +93,13 @@ class Patrick(commands.Bot):
             help_command=PatrickHelp(),
         )
 
+    async def on_ready(self):
+        self.logger.info("Connecting to database")
+        await self.database.connect()
+        self.aiosession = ClientSession()
+        await self.load_extensions()
+        self.logger.info(f"Logged in as {self.user}")
+
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
@@ -104,13 +111,6 @@ class Patrick(commands.Bot):
                 return
         if not found:
             await self.process_commands(message)
-
-    async def on_ready(self):
-        self.logger.info("Connecting to database")
-        await self.database.connect()
-        self.aiosession = ClientSession()
-        await self.load_extensions()
-        self.logger.info(f"Logged in as {self.user}")
 
     async def process_commands(self, message: discord.Message) -> None:
         ctx = await self.get_context(message)
