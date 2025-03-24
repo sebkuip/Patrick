@@ -79,7 +79,9 @@ class RandCommands(commands.Cog):
         random_tip = choice(self.bot.config.get("protips"))
         await ctx.send(f"{ctx.author.display_name}: Pro Tip: {random_tip}")
 
-    @commands.command(help="Generates a random binary number with the given amount of bits.")
+    @commands.command(
+        help="Generates a random binary number with the given amount of bits."
+    )
     async def rng(self, ctx, num: int):
         if num < 1:
             return await ctx.send("Number must be greater than 0.")

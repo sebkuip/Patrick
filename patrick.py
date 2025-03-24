@@ -10,31 +10,48 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-from util import get_custom_commands, process_relay_chat, process_custom_command, is_admin
+from util import (get_custom_commands, is_admin, process_custom_command,
+                  process_relay_chat)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
 
+
 def load_config():
     with open(Path(__file__).parent / "config.yaml", "r") as source:
         return yaml.safe_load(source)
+
 
 class PatrickHelp(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
     async def get_commands_mapping(self) -> tuple:
-        commands = {command.name: (command.signature, command.help if command.help is not None else "") for command in self.context.bot.commands}
+        commands = {
+            command.name: (
+                command.signature,
+                command.help if command.help is not None else "",
+            )
+            for command in self.context.bot.commands
+        }
         custom_commands = await get_custom_commands(self.context.bot)
         return (commands, custom_commands)
 
-    def format_table(self, commands_mapping: dict, custom_commands_mapping: dict) -> str:
+    def format_table(
+        self, commands_mapping: dict, custom_commands_mapping: dict
+    ) -> str:
         for key, value in custom_commands_mapping.items():
             new_value = value.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-            custom_commands_mapping[key] = new_value if len(value) < 100 else f"{new_value[:97]}..."
+            custom_commands_mapping[key] = (
+                new_value if len(value) < 100 else f"{new_value[:97]}..."
+            )
 
-        maxlen_key = max([len(key) for key in commands_mapping.keys()] + [len("Command:")])
-        maxlen_value = max([len(value[0]) for value in commands_mapping.values()] + [len("Message:")])
+        maxlen_key = max(
+            [len(key) for key in commands_mapping.keys()] + [len("Command:")]
+        )
+        maxlen_value = max(
+            [len(value[0]) for value in commands_mapping.values()] + [len("Message:")]
+        )
         maxlen_description = max(len(value[1]) for value in commands_mapping.values())
 
         text = "Available commands:\n"
@@ -42,19 +59,28 @@ class PatrickHelp(commands.HelpCommand):
         text += f"| {'Command:'.ljust(maxlen_key)} | {'Signature:'.ljust(maxlen_value)} | {'Description:'.ljust(maxlen_description)} |\n"
         text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|\n"
         text += "\n".join(
-            f"| {key.ljust(maxlen_key)} | {value[0].ljust(maxlen_value)} | {value[1].ljust(maxlen_description)} |" for key, value in commands_mapping.items()
+            f"| {key.ljust(maxlen_key)} | {value[0].ljust(maxlen_value)} | {value[1].ljust(maxlen_description)} |"
+            for key, value in commands_mapping.items()
         )
         text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|"
 
-        maxlen_key = max([len(key) for key in custom_commands_mapping.keys()] + [len("Command:")])
-        maxlen_value = max([len(value) for value in custom_commands_mapping.values()] + [len("Message:")])
+        maxlen_key = max(
+            [len(key) for key in custom_commands_mapping.keys()] + [len("Command:")]
+        )
+        maxlen_value = max(
+            [len(value) for value in custom_commands_mapping.values()]
+            + [len("Message:")]
+        )
 
         text += "\n\nCustom commands:\n"
         text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
-        text += f"| {'Command:'.ljust(maxlen_key)} | {'Message:'.ljust(maxlen_value)} |\n"
+        text += (
+            f"| {'Command:'.ljust(maxlen_key)} | {'Message:'.ljust(maxlen_value)} |\n"
+        )
         text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
         text += "\n".join(
-            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |" for key, value in custom_commands_mapping.items()
+            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |"
+            for key, value in custom_commands_mapping.items()
         )
         text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|"
         return text
@@ -85,9 +111,14 @@ class PatrickHelp(commands.HelpCommand):
     async def send_command_help(self, command):
         user = self.context.author
         if len(command.signature) == 0:
-            await  user.send(f"Usage: `{self.context.bot.command_prefix[1]}{command.name}`")
+            await user.send(
+                f"Usage: `{self.context.bot.command_prefix[1]}{command.name}`"
+            )
         else:
-            await user.send(f"Usage: `{self.context.bot.command_prefix[1]}{command.name} {command.signature}`")
+            await user.send(
+                f"Usage: `{self.context.bot.command_prefix[1]}{command.name} {command.signature}`"
+            )
+
 
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
@@ -173,6 +204,7 @@ class Patrick(commands.Bot):
             self.unload_extension(extension)
         self.load_extensions()
 
+
 config = load_config()
 logging_level = config.get("logging_level", "").upper()
 if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
@@ -184,6 +216,7 @@ logger: logging.Logger = logging.getLogger("patrick")
 logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
 
+
 @patrick.command(help="Reloads all extensions. Admin only.")
 @is_admin()
 async def reload(ctx):
@@ -192,5 +225,6 @@ async def reload(ctx):
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
     await ctx.message.delete(delay=5)
+
 
 patrick.run(TOKEN)
