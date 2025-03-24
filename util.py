@@ -21,12 +21,13 @@ async def get_custom_commands(bot) -> dict:
 
 async def process_custom_command(bot, message) -> bool:
     commands = await get_custom_commands(bot)
-    if message.content[1:] in commands:
-        bot.logger.info(
-            f"User '{message.author}' ran custom command '{message.content[1:]}'"
-        )
-        await message.channel.send(commands[message.content[1:]])
-        return True
+    for prefix in bot.command_prefix:
+        if message.content.removeprefix(prefix) in commands:
+            bot.logger.info(
+                f"User '{message.author}' ran custom command '{message.content[1:]}'"
+            )
+            await message.channel.send(commands[message.content.removeprefix(prefix)])
+            return True
     return False
 
 def is_staff():

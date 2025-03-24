@@ -86,7 +86,7 @@ class Patrick(commands.Bot):
         intents.members = True
 
         super().__init__(
-            command_prefix=",",
+            command_prefix=(", ", ","),
             case_insensitive=True,
             intents=intents,
             activity=activity,
