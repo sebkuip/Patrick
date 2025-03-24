@@ -23,20 +23,38 @@ class PatrickHelp(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
-    async def get_commands_mapping(self) -> dict:
-        commands = await get_custom_commands(self.context.bot)
-        commands.update({command.name: command.signature for command in self.context.bot.commands})
-        return commands
+    async def get_commands_mapping(self) -> tuple:
+        commands = {command.name: (command.signature, command.help if command.help is not None else "") for command in self.context.bot.commands}
+        custom_commands = await get_custom_commands(self.context.bot)
+        return (commands, custom_commands)
 
-    def format_table(self, mapping: dict) -> str:
-        maxlen_key = max(len(key) for key in mapping)
-        maxlen_value = max(len(value) for value in mapping.values())
+    def format_table(self, commands_mapping: dict, custom_commands_mapping: dict) -> str:
+        for key, value in custom_commands_mapping.items():
+            new_value = value.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+            custom_commands_mapping[key] = new_value if len(value) < 100 else f"{new_value[:97]}..."
+
+        maxlen_key = max([len(key) for key in commands_mapping.keys()] + [len("Command:")])
+        maxlen_value = max([len(value[0]) for value in commands_mapping.values()] + [len("Message:")])
+        maxlen_description = max(len(value[1]) for value in commands_mapping.values())
+
         text = "Available commands:\n"
+        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|\n"
+        text += f"| {'Command:'.ljust(maxlen_key)} | {'Signature:'.ljust(maxlen_value)} | {'Description:'.ljust(maxlen_description)} |\n"
+        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|\n"
+        text += "\n".join(
+            f"| {key.ljust(maxlen_key)} | {value[0].ljust(maxlen_value)} | {value[1].ljust(maxlen_description)} |" for key, value in commands_mapping.items()
+        )
+        text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|"
+
+        maxlen_key = max([len(key) for key in custom_commands_mapping.keys()] + [len("Command:")])
+        maxlen_value = max([len(value) for value in custom_commands_mapping.values()] + [len("Message:")])
+
+        text += "\n\nCustom commands:\n"
         text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
-        text += f"| {'Command:'.ljust(maxlen_key)} | {'Signature/response:'.ljust(maxlen_value)} |\n"
+        text += f"| {'Command:'.ljust(maxlen_key)} | {'Message:'.ljust(maxlen_value)} |\n"
         text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
         text += "\n".join(
-            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |" for key, value in mapping.items()
+            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |" for key, value in custom_commands_mapping.items()
         )
         text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|"
         return text
@@ -49,13 +67,15 @@ class PatrickHelp(commands.HelpCommand):
             return response.headers["Location"]
 
     async def send_help_message(self, user: discord.User):
-        commands = await self.get_commands_mapping()
-        if len(commands) <= 7:
-            return await user.send(f"Available commands: {', '.join(commands.keys())}")
-        content = self.format_table(commands)
+        commands, custom_commands = await self.get_commands_mapping()
+        command_names = list(commands.keys())
+        command_names += list(custom_commands.keys())
+        if len(command_names) <= 7:
+            return await user.send(f"Available commands: {', '.join(command_names)}")
+        content = self.format_table(commands, custom_commands)
         link = await self.generate_link(content)
         return await user.send(
-            f"Available commands: {', '.join(list(commands.keys())[:7])} ...\nSnipped: <{link}>"
+            f"Available commands: {', '.join(list(command_names)[:7])} ...\nSnipped: <{link}>"
         )
 
     async def send_bot_help(self, mapping):
@@ -65,9 +85,9 @@ class PatrickHelp(commands.HelpCommand):
     async def send_command_help(self, command):
         user = self.context.author
         if len(command.signature) == 0:
-            await  user.send(f"Usage: `,{command.name}`")
+            await  user.send(f"Usage: `{self.context.bot.command_prefix[1]}{command.name}`")
         else:
-            await user.send(f"Usage: `,{command.name} {command.signature}`")
+            await user.send(f"Usage: `{self.context.bot.command_prefix[1]}{command.name} {command.signature}`")
 
 class Patrick(commands.Bot):
     def __init__(self, logger: logging.Logger, config: dict):
@@ -164,7 +184,7 @@ logger: logging.Logger = logging.getLogger("patrick")
 logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
 
-@patrick.command()
+@patrick.command(help="Reloads all extensions. Admin only.")
 @is_admin()
 async def reload(ctx):
     m: discord.Message = await ctx.send("Reloading extensions...")

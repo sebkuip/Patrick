@@ -12,7 +12,7 @@ class RandCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(help="Performs a ping test and shows results.")
     async def ping(self, ctx):
         start = perf_counter()
         message = await ctx.send("Testing...")
@@ -21,7 +21,7 @@ class RandCommands(commands.Cog):
             content=f"Pong!\nLatency: {latency:.2f}ms\nAPI Latency: {self.bot.latency * 1000:.2f}ms"
         )
 
-    @commands.command()
+    @commands.command(help="Gets a random quote from zenquotes.")
     async def quote(self, ctx):
         async with self.bot.aiosession.get(
             "https://zenquotes.io/api/random/"
@@ -52,7 +52,7 @@ class RandCommands(commands.Cog):
         )
         return embed
 
-    @commands.command()
+    @commands.command(help="Gets a random or specific xkcd comic.")
     async def xkcd(self, ctx, number: int = None):
         if number is None:
             async with self.bot.aiosession.get(
@@ -74,19 +74,19 @@ class RandCommands(commands.Cog):
                 return await ctx.send("An error occurred while fetching the comic.")
             await ctx.send(embed=self.xkcd_embed(data))
 
-    @commands.command()
+    @commands.command(help="Gets a random protip.")
     async def protip(self, ctx):
         random_tip = choice(self.bot.config.get("protips"))
         await ctx.send(f"{ctx.author.display_name}: Pro Tip: {random_tip}")
 
-    @commands.command()
+    @commands.command(help="Generates a random binary number with the given amount of bits.")
     async def rng(self, ctx, num: int):
         if num < 1:
             return await ctx.send("Number must be greater than 0.")
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
 
-    @commands.command()
+    @commands.command(help="pikl someone.")
     @commands.guild_only()
     @is_staff()
     async def pikl(self, ctx, user: discord.Member):

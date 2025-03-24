@@ -8,7 +8,7 @@ class CustomCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(help="Add a custom command to the bot.")
     @is_staff()
     async def addcommand(self, ctx, key: str, *, message: str):
         commands = await get_custom_commands(self.bot)
@@ -18,7 +18,7 @@ class CustomCommands(commands.Cog):
         await self.bot.database.add_command(key, message)
         await ctx.send(f"Command `{key}` added.")
 
-    @commands.command()
+    @commands.command(help="Remove a custom command from the bot.")
     @is_staff()
     async def delcommand(self, ctx, key: str):
         await self.bot.database.remove_command(key)

@@ -5,7 +5,7 @@ class COREmands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(help="Shows instructions how to apply for student, builder, or engineer.")
     async def apply(self, ctx, *, name: str = None):
         if name is None:
             return await ctx.send('Specify "student", "builder", or "engineer".')
