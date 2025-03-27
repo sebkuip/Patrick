@@ -135,7 +135,7 @@ class RandCommands(commands.Cog):
 
     @commands.command(help="Googles something.")
     async def google(self, ctx, *, query):
-        await ctx.send(f"https://www.google.com/search?q={query.replace(' ', '+')}")
+        await ctx.send(f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
 
 def setup(bot):
     bot.add_cog(RandCommands(bot))
