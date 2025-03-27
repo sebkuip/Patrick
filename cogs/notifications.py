@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 class RoleButton(discord.ui.Button):
     def __init__(self, role):
@@ -26,10 +26,8 @@ class NotificationsView(discord.ui.View):
 class Notifications(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.post_notifications_embed.start()
 
-    @tasks.loop(hours=1)
-    async def post_notifications_embed(self):
+    async def cog_load(self):
         embed = discord.Embed(title="Notifications", color=discord.Color.red(), description="Click the corresponding button to toggle your notification status for each type.")
         embed.set_footer(text="⚠️note: you will automatically be banned from this channel if you abuse the bot")
         for category in self.bot.config["notifications"]:
