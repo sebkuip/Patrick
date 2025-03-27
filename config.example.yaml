@@ -1,7 +1,24 @@
 channels:
   welcome: 708732557453426728
   gamechat: 597852843785060357
+  notifications: 701824005954600960
 ingame_regex: '^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$'
+notifications:
+  - name: "🇸urvival"
+    description: "Survival updates"
+    role: 701802551175282759
+  - name: "🇺pdates"
+    description: "Network updates"
+    role: 702192714862821485
+  - name: "🇨ompetitor"
+    description: "Competition involvement"
+    role: 755068314186940486
+  - name: "🇵oL"
+    description: "Plot o' Logic Revamp"
+    role: 846135848226652191
+  - name: "🇹rial"
+    description: "Get notified by Staff for trials"
+    role: 1295904929378074725
 roles:
   trusted: 962782039403298887
   staff: 617848463438118922
