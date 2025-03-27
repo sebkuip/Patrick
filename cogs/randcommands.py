@@ -88,6 +88,33 @@ class RandCommands(commands.Cog):
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
 
+    @commands.command(help="Insult someone >:D")
+    async def insult(self, ctx, member: discord.Member):
+        insult = choice(self.bot.config["insults"])
+        await ctx.send(insult.format(user=member.mention))
+
+    @commands.command(help="Get someone's minecraft UUID.")
+    async def uuid(self, ctx, username: str):
+        async with self.bot.aiosession.get(
+            f"https://api.mojang.com/users/profiles/minecraft/{username}"
+        ) as response:
+            if response.status == 200:
+                data = await response.json()
+                raw_uuid = data["id"]
+                uuid = str(
+                    raw_uuid[:8]
+                    + "-"
+                    + raw_uuid[8:12]
+                    + "-"
+                    + raw_uuid[12:16]
+                    + "-"
+                    + raw_uuid[16:20]
+                    + "-"
+                    + raw_uuid[20:])
+                await ctx.send(f"{ctx.author.display_name}: `{uuid}`")
+            else:
+                await ctx.send("Invalid username provided")
+
     @commands.command(help="pikl someone.")
     @commands.guild_only()
     @is_staff()
