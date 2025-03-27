@@ -148,7 +148,7 @@ class Patrick(commands.Bot):
         self.logger.info("Connecting to database")
         await self.database.connect()
         self.aiosession = ClientSession()
-        await self.load_extensions()
+        self.load_extensions()
         self.logger.info(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
@@ -171,7 +171,7 @@ class Patrick(commands.Bot):
             )
         await self.invoke(ctx)
 
-    async def load_extensions(self):
+    def load_extensions(self):
         self.logger.info("Loading extensions")
         status = {}
         for extension in listdir("./cogs"):
