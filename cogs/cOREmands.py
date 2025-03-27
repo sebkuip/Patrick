@@ -1,8 +1,10 @@
-import discord
-from discord.ext import commands
 from random import choice
 
+import discord
+from discord.ext import commands
+
 from util import is_staff
+
 
 class COREmands(commands.Cog):
     def __init__(self, bot):
@@ -34,13 +36,16 @@ class COREmands(commands.Cog):
     @is_staff()
     async def trust(self, ctx, member: discord.Member):
         await member.add_roles(ctx.guild.get_role(self.bot.config["roles"]["trusted"]))
-        await ctx.send(f"{ctx.author.display_name}: {member.display_name} is now Trusted.")
+        await ctx.send(
+            f"{ctx.author.display_name}: {member.display_name} is now Trusted."
+        )
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         greeting = choice(self.bot.config["greetings"])
         channel = member.guild.get_channel(self.bot.config["channels"]["welcome"])
         await channel.send(greeting.format(user=member.mention))
+
 
 async def setup(bot):
     await bot.add_cog(COREmands(bot))

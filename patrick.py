@@ -159,7 +159,9 @@ class Patrick(commands.Bot):
             message, found = process_relay_chat(self, message)
         if message.content.startswith(self.command_prefix):
             if await process_custom_command(self, message):
-                await self.database.add_command_history(message.author.display_name, message.content)
+                await self.database.add_command_history(
+                    message.author.display_name, message.content
+                )
                 return
         if not found:
             await self.process_commands(message)
@@ -170,7 +172,9 @@ class Patrick(commands.Bot):
             self.logger.info(
                 f"User '{message.author}' ran command '{ctx.command.name}'"
             )
-            await self.database.add_command_history(message.author.display_name, ctx.command.name)
+            await self.database.add_command_history(
+                message.author.display_name, ctx.command.name
+            )
         await self.invoke(ctx)
 
     async def load_extensions(self):
@@ -227,5 +231,6 @@ async def reload(ctx):
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
     await ctx.message.delete(delay=5)
+
 
 patrick.run(TOKEN)

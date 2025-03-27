@@ -5,7 +5,7 @@ from time import perf_counter
 import discord
 from discord.ext import commands
 
-from util import is_staff, is_admin
+from util import is_admin, is_staff
 
 
 class RandCommands(commands.Cog):
@@ -110,7 +110,8 @@ class RandCommands(commands.Cog):
                     + "-"
                     + raw_uuid[16:20]
                     + "-"
-                    + raw_uuid[20:])
+                    + raw_uuid[20:]
+                )
                 await ctx.send(f"{ctx.author.display_name}: `{uuid}`")
             else:
                 await ctx.send("Invalid username provided")
@@ -136,6 +137,7 @@ class RandCommands(commands.Cog):
     @commands.command(help="Googles something.")
     async def google(self, ctx, *, query):
         await ctx.send(f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
+
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))
