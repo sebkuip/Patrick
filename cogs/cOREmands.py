@@ -42,5 +42,5 @@ class COREmands(commands.Cog):
         channel = member.guild.get_channel(self.bot.config["channels"]["welcome"])
         await channel.send(greeting.format(user=member.mention))
 
-def setup(bot):
-    bot.add_cog(COREmands(bot))
+async def setup(bot):
+    await bot.add_cog(COREmands(bot))

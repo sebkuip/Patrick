@@ -148,7 +148,7 @@ class Patrick(commands.Bot):
         self.logger.info("Connecting to database")
         await self.database.connect()
         self.aiosession = ClientSession()
-        self.load_extensions()
+        await self.load_extensions()
         self.logger.info(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
@@ -173,7 +173,7 @@ class Patrick(commands.Bot):
             await self.database.add_command_history(message.author.display_name, ctx.command.name)
         await self.invoke(ctx)
 
-    def load_extensions(self):
+    async def load_extensions(self):
         self.logger.info("Loading extensions")
         status = {}
         for extension in listdir("./cogs"):
@@ -186,7 +186,7 @@ class Patrick(commands.Bot):
 
         for extension in status:
             try:
-                self.load_extension(f"cogs.{extension[:-3]}")
+                await self.load_extension(f"cogs.{extension[:-3]}")
                 status[extension] = "L"
             except Exception as e:
                 errors.append(e)
@@ -203,8 +203,8 @@ class Patrick(commands.Bot):
     async def reload_extensions(self):
         for extension in list(self.extensions):
             self.logger.info(f"Reloading extension {extension}")
-            self.unload_extension(extension)
-        self.load_extensions()
+            await self.unload_extension(extension)
+        await self.load_extensions()
 
 
 config = load_config()
@@ -227,6 +227,5 @@ async def reload(ctx):
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
     await ctx.message.delete(delay=5)
-
 
 patrick.run(TOKEN)

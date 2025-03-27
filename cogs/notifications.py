@@ -39,5 +39,5 @@ class Notifications(commands.Cog):
         await channel.purge(limit=1)
         await channel.send(embed=embed, view=view)
 
-def setup(bot):
-    bot.add_cog(Notifications(bot))
+async def setup(bot):
+    await bot.add_cog(Notifications(bot))

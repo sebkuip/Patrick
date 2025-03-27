@@ -25,5 +25,5 @@ class CustomCommands(commands.Cog):
         await ctx.send(f"Command `{key}` removed.")
 
 
-def setup(bot):
-    bot.add_cog(CustomCommands(bot))
+async def setup(bot):
+    await bot.add_cog(CustomCommands(bot))
