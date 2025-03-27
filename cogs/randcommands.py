@@ -5,7 +5,7 @@ from time import perf_counter
 import discord
 from discord.ext import commands
 
-from util import is_staff
+from util import is_staff, is_admin
 
 
 class RandCommands(commands.Cog):
@@ -127,6 +127,11 @@ class RandCommands(commands.Cog):
         await asyncio.sleep(120_000)
         await user.remove_roles(pikl_role)
 
+    @commands.command(help="Run a query on the database.")
+    @is_admin()
+    async def query(self, ctx, *, query):
+        response = await self.bot.database.query(query)
+        await ctx.send(f"Succesfully ran query: {response}")
 
 def setup(bot):
     bot.add_cog(RandCommands(bot))

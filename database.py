@@ -18,6 +18,13 @@ class Connector:
                                         PRIMARY KEY(key)
                                     )"""
             )
+            await cursor.execute(
+                """CREATE TABLE IF NOT EXISTS command_history (
+                                        user INTEGER,
+                                        command VARCHAR(128)
+                                        )"""
+            )
+            await self.connection.commit()
 
     async def get_commands(self):
         async with self.connection.cursor() as cur:
@@ -42,3 +49,14 @@ class Connector:
             query = "DELETE FROM commands WHERE key like ?"
             await cur.execute(query, (key,))
             await self.connection.commit()
+
+    async def add_command_history(self, user, command):
+        async with self.connection.cursor() as cur:
+            query = "INSERT INTO command_history(user, command) VALUES(?, ?)"
+            await cur.execute(query, (user, command))
+            await self.connection.commit()
+
+    async def query(self, query):
+        async with self.connection.cursor() as cur:
+            await cur.execute(query)
+            return await cur.fetchall()

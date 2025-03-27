@@ -30,8 +30,8 @@ class COREmands(commands.Cog):
             case _:
                 await ctx.send('Specify "student", "builder", or "engineer".')
 
-    @is_staff()
     @commands.command(help="Give the trusted role to someone.")
+    @is_staff()
     async def trust(self, ctx, member: discord.Member):
         await member.add_roles(ctx.guild.get_role(self.bot.config["roles"]["trusted"]))
         await ctx.send(f"{ctx.author.display_name}: {member.display_name} is now Trusted.")
