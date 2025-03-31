@@ -138,6 +138,32 @@ class RandCommands(commands.Cog):
     async def google(self, ctx, *, query):
         await ctx.send(f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
 
+    def prime_factors(self, n: int) -> list:
+        i = 2
+        factors = []
+        while i * i <= n:
+            if n % i:
+                i += 1
+            else:
+                n //= i
+                factors.append(i)
+        if n > 1:
+            factors.append(n)
+        return factors
+
+    @commands.command(help="Get the prime factors of a number.")
+    async def factorize(self, ctx, number: int):
+        if number < 1:
+            return await ctx.send("Number must be greater than 0.")
+        factors = self.prime_factors(number)
+        powered_factors = []
+        for factor in set(factors):
+            count = factors.count(factor)
+            if count > 1:
+                powered_factors.append(f"{factor}^{str(count).translate({"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"})}")
+            else:
+                powered_factors.append(f"{factor}")
+        await ctx.send(f"{ctx.author.display_name}: {number} = {' * '.join(powered_factors)}")
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))
