@@ -1,4 +1,5 @@
 import asyncio
+from io import BytesIO
 from random import choice, getrandbits, randint
 from time import perf_counter
 
@@ -160,10 +161,38 @@ class RandCommands(commands.Cog):
         for factor in set(factors):
             count = factors.count(factor)
             if count > 1:
-                powered_factors.append(f"{factor}^{str(count).translate({"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"})}")
+                powered_factors.append(
+                    f"{factor}^{str(count).translate({"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"})}"
+                )
             else:
                 powered_factors.append(f"{factor}")
-        await ctx.send(f"{ctx.author.display_name}: {number} = {' * '.join(powered_factors)}")
+        await ctx.send(
+            f"{ctx.author.display_name}: {number} = {' * '.join(powered_factors)}"
+        )
+
+    @commands.command(help="Get the aeiou version of your text.", aliases=["tts"])
+    @commands.cooldown(15, 60, commands.BucketType.default)
+    async def aeiou(self, ctx, *, text):
+        if len(text) > 1024:
+            return await ctx.send(
+                "Text is too long. Maximum length is 1024 characters."
+            )
+        if len(text) < 1:
+            return await ctx.send("Text is too short. Minimum length is 1 character.")
+        user_agent = "Patrick discord bot | Python 3 | sebkuip | https://github.com/OpenRedstoneEngineers/Patrick/"
+        headers = {
+            "User-Agent": user_agent,
+        }
+        async with self.bot.aiosession.get(
+            "https://tts.cyzon.us/tts", headers=headers, params={"text": text}
+        ) as response:
+            if response.status == 200:
+                audio = BytesIO(await response.read())
+                file = discord.File(audio, filename="aeiou.mp3")
+                await ctx.send(f"{ctx.author.display_name}: {text}", file=file)
+            else:
+                await ctx.send("An error occurred while fetching the aeiou text.")
+
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))

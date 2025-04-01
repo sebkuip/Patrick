@@ -33,6 +33,10 @@ class ErrorHandler(commands.Cog):
                 f"User '{ctx.author}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
             )
             await ctx.send("Unrecognized command :'(")
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f"This command is on cooldown. Try again in {error.retry_after:.2f} seconds."
+            )
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("Bot does not have permissions for this command.")
         elif isinstance(error, commands.DisabledCommand):
