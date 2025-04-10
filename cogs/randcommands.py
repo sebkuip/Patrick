@@ -117,6 +117,19 @@ class RandCommands(commands.Cog):
             else:
                 await ctx.send("Invalid username provided")
 
+    @commands.command(help="Slap someone.")
+    @commands.guild_only()
+    async def slap(self, ctx, user: discord.Member):
+        slap_role = discord.utils.get(ctx.guild.roles, name="slapped")
+        if slap_role is None:
+            return await ctx.send("No slapped rank :(")
+        if slap_role in user.roles:
+            return await ctx.send("User is already slapped.")
+        await user.add_roles(slap_role)
+        await ctx.send(f"{user.mention} got slapped by {ctx.author.mention}.")
+        await asyncio.sleep(3_600) # 1 hour
+        await user.remove_roles(slap_role)
+
     @commands.command(help="pikl someone.")
     @commands.guild_only()
     @is_staff()
