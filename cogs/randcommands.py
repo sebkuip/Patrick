@@ -208,7 +208,9 @@ class RandCommands(commands.Cog):
                 await ctx.send("An error occurred while fetching the aeiou text.")
 
     @commands.command(help="Generate a fractal image using a given seed.")
+    @is_staff()
     async def fractal(self, ctx, seed: str):
+        start = perf_counter()
         size = self.bot.config["fractalDeets"]["size"]
         max_iter = self.bot.config["fractalDeets"]["maxIterations"]
         messiness = self.bot.config["fractalDeets"]["messiness"]
@@ -223,6 +225,11 @@ class RandCommands(commands.Cog):
             embed = discord.Embed()
             embed.set_image(url="attachment://image.png")
             await ctx.send(file=file, embed=embed)
+
+        end = perf_counter()
+        self.bot.logger.info(
+            f"Fractal generation took {end - start:.2f} seconds for seed '{seed}'"
+        )
 
 
 async def setup(bot):
