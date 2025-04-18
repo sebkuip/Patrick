@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 
 from util import is_admin, is_staff
+from fractal import fractal
 
 
 class RandCommands(commands.Cog):
@@ -205,6 +206,23 @@ class RandCommands(commands.Cog):
                 await ctx.send(f"{ctx.author.display_name}: {text}", file=file)
             else:
                 await ctx.send("An error occurred while fetching the aeiou text.")
+
+    @commands.command(help="Generate a fractal image using a given seed.")
+    async def fractal(self, ctx, seed: str):
+        size = self.bot.config["fractalDeets"]["size"]
+        max_iter = self.bot.config["fractalDeets"]["maxIterations"]
+        messiness = self.bot.config["fractalDeets"]["messiness"]
+        zoom = self.bot.config["fractalDeets"]["zoom"]
+
+        frac = fractal(seed, size, size, max_iter, messiness, zoom)
+
+        with BytesIO() as image_binary:
+            frac.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            file = discord.File(fp=image_binary, filename='image.png')
+            embed = discord.Embed()
+            embed.set_image(url="attachment://image.png")
+            await ctx.send(file=file, embed=embed)
 
 
 async def setup(bot):
