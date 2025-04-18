@@ -10,7 +10,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-from util import (get_custom_commands, is_admin, process_custom_command,
+from util import (find_automod_matches, get_custom_commands, is_admin,
+                  load_automod_regexes, process_custom_command,
                   process_relay_chat)
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -156,6 +157,12 @@ class Patrick(commands.Bot):
             return
         found = False
         if message.author.bot:
+            if find_automod_matches(self, message):
+                logger.info(
+                    f"Automod triggered for user {message.author} ({message.author.id}) with message {message.content}"
+                )
+                await message.delete()
+                return
             message, found = process_relay_chat(self, message)
         if message.content.startswith(self.command_prefix):
             if await process_custom_command(self, message):
@@ -221,16 +228,23 @@ else:
 logger: logging.Logger = logging.getLogger("patrick")
 logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
+load_automod_regexes(patrick)
 
 
-@patrick.command(help="Reloads all extensions. Admin only.")
+@patrick.command(help="Reloads all extensions and configs. Admin only.")
 @is_admin()
 async def reload(ctx):
+    await ctx.message.delete(delay=5)
     m: discord.Message = await ctx.send("Reloading extensions...")
     await patrick.reload_extensions()
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
-    await ctx.message.delete(delay=5)
+    m: discord.Message = await ctx.send("Reloading config...")
+    config = load_config()
+    patrick.config = config
+    load_automod_regexes(patrick)
+    await m.edit(content="Reloaded config")
+    await m.delete(delay=5)
 
 
 patrick.run(TOKEN)

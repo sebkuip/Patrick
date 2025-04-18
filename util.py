@@ -1,3 +1,4 @@
+import re
 import typing
 
 import discord
@@ -27,6 +28,17 @@ async def process_custom_command(bot, message) -> bool:
                 f"User '{message.author}' ran custom command '{message.content[1:]}'"
             )
             await message.channel.send(commands[message.content.removeprefix(prefix)])
+            return True
+    return False
+
+
+def load_automod_regexes(bot):
+    bot.automod_regexes = [re.compile(regex) for regex in bot.config["automod_regexes"]]
+
+
+def find_automod_matches(bot, message: discord.Message) -> bool:
+    for regex in bot.automod_regexes:
+        if regex.search(message.content) is not None:
             return True
     return False
 

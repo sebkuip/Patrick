@@ -127,7 +127,7 @@ class RandCommands(commands.Cog):
             return await ctx.send("User is already slapped.")
         await user.add_roles(slap_role)
         await ctx.send(f"{user.mention} got slapped by {ctx.author.mention}.")
-        await asyncio.sleep(3_600) # 1 hour
+        await asyncio.sleep(3_600)  # 1 hour
         await user.remove_roles(slap_role)
 
     @commands.command(help="pikl someone.")
