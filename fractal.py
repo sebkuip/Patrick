@@ -1,8 +1,10 @@
-from math import sin, cos, sqrt, log, ceil
 import hashlib
+from math import ceil, cos, log, sin, sqrt
 from random import Random
-from PIL import Image
+
 from numpy import array
+from PIL import Image
+
 
 class Complex:
     def __init__(self, real, imag):
@@ -30,6 +32,7 @@ class Complex:
     def mag2(self):
         return self.real * self.real + self.imag * self.imag
 
+
 # room for improvement but works 99.9% of times (never crashes just gives up and returns a bad one)
 def find_good_julia(angle, messiness):
     x = cos(angle) * 0.4 - 0.3
@@ -43,11 +46,13 @@ def find_good_julia(angle, messiness):
     # bad luck, will get an almost blank image
     return Complex(16.0, 0.0)
 
+
 def sha256_lower_long(str):
     acc = 0
     for byte in hashlib.sha256(bytes(str, "utf-8")).digest():
         acc = (acc << 8) | (byte & 0xFF)
     return acc
+
 
 def mandel_pixel(coord: Complex, max_iterations: int) -> int:
     z = Complex(0.0, 0.0)
@@ -57,11 +62,13 @@ def mandel_pixel(coord: Complex, max_iterations: int) -> int:
         i += 1
     return i
 
+
 def get_color(i: float, a: float, b: float, c: float) -> tuple:
     red = int(max(sin(i * a) * 255.0, 0.0))
     green = int(max(sin(i * b) * 255.0, 0.0))
     blue = int(max(sin(i * c) * 255.0, 0.0))
     return (red, green, blue)
+
 
 def julia_pixel(coordinate: Complex, max_iterations: int, c: Complex) -> float:
     z = coordinate
@@ -79,7 +86,10 @@ def julia_pixel(coordinate: Complex, max_iterations: int, c: Complex) -> float:
     # actual magic
     return float(i) + 1.0 - log(log(sqrt(z.mag2()))) * (1 / log(2))
 
-def fractal(seed: str, width: int, height: int,  max_iterations: int, messiness: int, zoom: float):
+
+def fractal(
+    seed: str, width: int, height: int, max_iterations: int, messiness: int, zoom: float
+):
     aspect_ratio = float(width) / float(height)
     rng = Random(sha256_lower_long(seed))
 
@@ -90,7 +100,9 @@ def fractal(seed: str, width: int, height: int,  max_iterations: int, messiness:
     b = rng.uniform(0.0, 0.2)
     c = rng.uniform(0.0, 0.2)
 
-    img_array = array([[(0,0,0) for _ in range(height)] for _ in range(width)], dtype="uint8")
+    img_array = array(
+        [[(0, 0, 0) for _ in range(height)] for _ in range(width)], dtype="uint8"
+    )
     for y in range(height):
         for x in range(int(ceil(float(width) / 2.0))):
             co_x = aspect_ratio * zoom * (float(x) / float(width) - 0.5)

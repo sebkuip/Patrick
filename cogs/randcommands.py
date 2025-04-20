@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import to_thread
 from io import BytesIO
 from random import choice, getrandbits, randint
 from time import perf_counter
@@ -6,8 +7,8 @@ from time import perf_counter
 import discord
 from discord.ext import commands
 
-from util import is_admin, is_staff
 from fractal import fractal
+from util import is_admin, is_staff
 
 
 class RandCommands(commands.Cog):
@@ -216,12 +217,12 @@ class RandCommands(commands.Cog):
         messiness = self.bot.config["fractalDeets"]["messiness"]
         zoom = self.bot.config["fractalDeets"]["zoom"]
 
-        frac = fractal(seed, size, size, max_iter, messiness, zoom)
+        frac = await to_thread(fractal, seed, size, size, max_iter, messiness, zoom)
 
         with BytesIO() as image_binary:
-            frac.save(image_binary, 'PNG')
+            frac.save(image_binary, "PNG")
             image_binary.seek(0)
-            file = discord.File(fp=image_binary, filename='image.png')
+            file = discord.File(fp=image_binary, filename="image.png")
             embed = discord.Embed()
             embed.set_image(url="attachment://image.png")
             await ctx.send(file=file, embed=embed)
