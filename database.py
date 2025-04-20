@@ -55,8 +55,3 @@ class Connector:
             query = "INSERT INTO command_history(user, command) VALUES(?, ?)"
             await cur.execute(query, (user, command))
             await self.connection.commit()
-
-    async def query(self, query):
-        async with self.connection.cursor() as cur:
-            await cur.execute(query)
-            return await cur.fetchall()

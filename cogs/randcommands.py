@@ -144,16 +144,6 @@ class RandCommands(commands.Cog):
         await asyncio.sleep(120_000)
         await user.remove_roles(pikl_role)
 
-    @commands.command(help="Run a query on the database.")
-    @is_admin()
-    async def query(self, ctx, *, query):
-        response = await self.bot.database.query(query)
-        if len(response) == 0:
-            return await ctx.send("Succesfully ran query. No results found.")
-        if len(str(response)) > 1900:
-            return await ctx.send("Query result is too long to send.")
-        await ctx.send(f"Succesfully ran query: {response}")
-
     @commands.command(help="Googles something.")
     async def google(self, ctx, *, query):
         await ctx.send(f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
