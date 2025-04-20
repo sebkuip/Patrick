@@ -148,6 +148,10 @@ class RandCommands(commands.Cog):
     @is_admin()
     async def query(self, ctx, *, query):
         response = await self.bot.database.query(query)
+        if len(response) == 0:
+            return await ctx.send("Succesfully ran query. No results found.")
+        if len(str(response)) > 1900:
+            return await ctx.send("Query result is too long to send.")
         await ctx.send(f"Succesfully ran query: {response}")
 
     @commands.command(help="Googles something.")

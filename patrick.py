@@ -10,9 +10,14 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-from util import (find_automod_matches, get_custom_commands, is_admin,
-                  load_automod_regexes, process_custom_command,
-                  process_relay_chat)
+from util import (
+    find_automod_matches,
+    get_custom_commands,
+    is_admin,
+    load_automod_regexes,
+    process_custom_command,
+    process_relay_chat,
+)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
