@@ -2,6 +2,7 @@ from math import sin, cos, sqrt, log, ceil
 import hashlib
 from random import Random
 from PIL import Image
+from numpy import array
 
 class Complex:
     def __init__(self, real, imag):
@@ -89,7 +90,7 @@ def fractal(seed: str, width: int, height: int,  max_iterations: int, messiness:
     b = rng.uniform(0.0, 0.2)
     c = rng.uniform(0.0, 0.2)
 
-    img = Image.new("RGB", (width, height), (0, 0, 0))
+    img_array = array([[(0,0,0) for _ in range(height)] for _ in range(width)], dtype="uint8")
     for y in range(height):
         for x in range(int(ceil(float(width) / 2.0))):
             co_x = aspect_ratio * zoom * (float(x) / float(width) - 0.5)
@@ -97,6 +98,6 @@ def fractal(seed: str, width: int, height: int,  max_iterations: int, messiness:
             coordinate = Complex(co_x, co_y)
             iterations = julia_pixel(coordinate, max_iterations, seed_coordinate)
             color = get_color(iterations, a, b, c)
-            img.putpixel((x, y), color)
-            img.putpixel((width - x - 1, height - y - 1), color)
-    return img
+            img_array[y][x] = color
+            img_array[height - y - 1][width - x - 1] = color
+    return Image.fromarray(img_array, "RGB")
