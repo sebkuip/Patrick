@@ -77,7 +77,6 @@ class CustomCommands(commands.Cog):
         if key not in self.bot.database.commands_cache:
             return []
         messages = self.bot.database.commands_cache[key]
-        self.bot.logger.info(self.bot.database.commands_cache)
         return [app_commands.Choice(name=message, value=message) for message in messages if current.lower() in message.lower()]
 
 async def setup(bot):
