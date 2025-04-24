@@ -15,7 +15,7 @@ class Connector:
             await cursor.execute(
                 """CREATE TABLE IF NOT EXISTS command_keys (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        key VARCHAR(128),
+                                        key VARCHAR(128)
                                     )"""
             )
             await cursor.execute(

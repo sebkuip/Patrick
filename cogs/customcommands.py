@@ -67,7 +67,7 @@ class CustomCommands(commands.Cog):
         return [app_commands.Choice(name=key, value=key) for key in commands if current.lower() in key.lower()]
     
     @remove_response.autocomplete("message")
-    async def autocomplete_message(self, interaction, key: str, current: str):
+    async def autocomplete_message(self, interaction, current: str):
         key = interaction.namespace.key
         if key not in self.bot.database.commands_cache:
             return []

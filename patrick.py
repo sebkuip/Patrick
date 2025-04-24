@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 import database
 from util import (
     find_automod_matches,
-    get_custom_commands,
     is_admin,
     load_automod_regexes,
     process_custom_command,
@@ -40,7 +39,7 @@ class PatrickHelp(commands.HelpCommand):
             )
             for command in self.context.bot.commands
         }
-        custom_commands = await get_custom_commands(self.context.bot)
+        custom_commands = context.bot.database.commands_cache
         return (commands, custom_commands)
 
     def format_table(
