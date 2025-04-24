@@ -2,6 +2,7 @@ import re
 import typing
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 
@@ -15,13 +16,8 @@ def process_relay_chat(bot, message) -> typing.Tuple[discord.Message, bool]:
             return message, True
     return message, False
 
-
-async def get_custom_commands(bot) -> dict:
-    return {row[0]: row[1] for row in await bot.database.get_commands()}
-
-
 async def process_custom_command(bot, message) -> bool:
-    commands = await get_custom_commands(bot)
+    commands = bot.database.commands_cache
     for prefix in bot.command_prefix:
         if message.content.removeprefix(prefix) in commands:
             bot.logger.info(
@@ -55,6 +51,17 @@ def is_staff():
 
     return commands.check(predicate)
 
+def app_is_staff():
+    def predicate(interaction: discord.Interaction):
+        if (
+            discord.utils.get(interaction.user.roles, id=interaction.client.config["roles"]["staff"])
+            is not None
+        ):
+            return True
+        else:
+            raise commands.MissingPermissions("You are not staff.")
+    return app_commands.check(predicate)
+
 
 def is_admin():
     def predicate(ctx):
@@ -67,3 +74,14 @@ def is_admin():
             raise commands.MissingPermissions("You are not an admin.")
 
     return commands.check(predicate)
+
+def app_is_admin():
+    def predicate(interaction: discord.Interaction):
+        if (
+            discord.utils.get(interaction.user.roles, id=interaction.client.config["roles"]["admin"])
+            is not None
+        ):
+            return True
+        else:
+            raise commands.MissingPermissions("You are not an admin.")
+    return app_commands.check(predicate)

@@ -77,11 +77,6 @@ class RandCommands(commands.Cog):
                 return await ctx.send("An error occurred while fetching the comic.")
             await ctx.send(embed=self.xkcd_embed(data))
 
-    @commands.command(help="Gets a random protip.")
-    async def protip(self, ctx):
-        random_tip = choice(self.bot.config.get("protips"))
-        await ctx.send(f"{ctx.author.display_name}: Pro Tip: {random_tip}")
-
     @commands.command(
         help="Generates a random binary number with the given amount of bits."
     )
@@ -90,11 +85,6 @@ class RandCommands(commands.Cog):
             return await ctx.send("Number must be greater than 0.")
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
-
-    @commands.command(help="Insult someone >:D")
-    async def insult(self, ctx, member: discord.Member):
-        insult = choice(self.bot.config["insults"])
-        await ctx.send(insult.format(user=member.mention))
 
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
