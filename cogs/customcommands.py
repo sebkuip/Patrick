@@ -1,15 +1,20 @@
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff
+from util import app_is_staff, is_admin
 
 
 class CustomCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def setup(bot):
-        await bot.tree.sync()
+    @commands.command(help="Sync slash commands")
+    @is_admin()
+    async def sync(self, ctx):
+        self.bot.logger.info("Syncing slash commands")
+        commands = await self.bot.tree.sync()
+        self.bot.logger.info(f"Synced {len(commands)} slash commands")
+        await ctx.send(f"Synced {len(commands)} slash commands")
 
     @app_commands.command(description="Add a custom command to the bot.")
     @app_is_staff()
@@ -27,7 +32,7 @@ class CustomCommands(commands.Cog):
         if key not in self.bot.database.commands_cache:
             await interaction.response.send_message(f"Command `{key}` does not exist.", ephemeral=True)
             return
-        self.bot.database.add_command_response(key, message)
+        await self.bot.database.add_command_response(key, message)
         await interaction.response.send_message(f"Response added to command `{key}`.")
 
     @add_response.autocomplete("key")
@@ -72,17 +77,8 @@ class CustomCommands(commands.Cog):
         if key not in self.bot.database.commands_cache:
             return []
         messages = self.bot.database.commands_cache[key]
+        self.bot.logger.info(self.bot.database.commands_cache)
         return [app_commands.Choice(name=message, value=message) for message in messages if current.lower() in message.lower()]
-
-    @comands.command(help="Add a response to an existing custom command.")
-    @is_staff()
-    async def addresponse(self, ctx, key: str, *, message: str):
-        commands = await get_custom_commands(self.bot)
-        if key not in commands:
-            await ctx.send(f"Command `{key}` does not exist. Use `addcommand` to add it.")
-            return
-        await self.bot.database.add_response(key, message)
-        await ctx.send(f"Response added to command `{key}`.")
 
 async def setup(bot):
     await bot.add_cog(CustomCommands(bot))

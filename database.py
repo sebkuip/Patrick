@@ -43,16 +43,15 @@ class Connector:
     async def get_command(self, key):
         return self.commands_cache.get(key)
     
-    async def add_command(self, key, responses):
+    async def add_command(self, key, response):
         async with self.connection.cursor() as cur:
             query = "INSERT INTO command_keys(key) VALUES(?)"
             await cur.execute(query, (key,))
             command_id = cur.lastrowid
-            for response in responses:
-                query = "INSERT INTO command_responses(id, response) VALUES(?, ?)"
-                await cur.execute(query, (command_id, response))
+            query = "INSERT INTO command_responses(id, response) VALUES(?, ?)"
+            await cur.execute(query, (command_id, response))
             await self.connection.commit()
-            self.commands_cache[key] = responses
+            self.commands_cache[key] = [response]
 
     async def remove_command(self, key):
         async with self.connection.cursor() as cur:
