@@ -13,15 +13,9 @@ class Connector:
         self.connection = await aiosqlite.connect(self.database)
         async with self.connection.cursor() as cursor:
             await cursor.execute(
-                """CREATE TABLE IF NOT EXISTS command_keys (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        key VARCHAR(128)
-                                    )"""
-            )
-            await cursor.execute(
-                """CREATE TABLE IF NOT EXISTS command_responses (
-                                        id INTEGER,
-                                        response text
+                """CREATE TABLE IF NOT EXISTS commands (
+                                        key VARCHAR(128),
+                                        message text,
                                     )"""
             )
             await cursor.execute(

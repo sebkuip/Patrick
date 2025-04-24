@@ -86,6 +86,16 @@ class RandCommands(commands.Cog):
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
 
+    @commands.command(help="Insult someone >:D")
+    async def insult(self, ctx, member: discord.Member):
+        insult = choice(self.bot.config["insults"])
+        await ctx.send(insult.format(user=member.mention))
+
+    @commands.command(help="Call the mods on someone.")
+    async def mods(self, ctx, member: discord.Member):
+        insult = choice(self.bot.config["insults"])
+        await ctx.send(insult.format(user=member.mention))
+
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
         async with self.bot.aiosession.get(

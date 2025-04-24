@@ -16,7 +16,7 @@ class CustomCommands(commands.Cog):
     async def add(self, interaction, key: str, *, message: str):
         commands = self.bot.database.commands_cache
         if key in commands:
-            await interaction.response.send_message(f"Command `{key}` already exists.", ephemeral=True)
+            await ctx.send(f"Command `{key}` already exists. Use `addresponse` to add another response.")
             return
         await self.bot.database.add_command(key, message)
         await interaction.response.send_message(f"Command `{key}` added.")
@@ -74,6 +74,15 @@ class CustomCommands(commands.Cog):
         messages = self.bot.database.commands_cache[key]
         return [app_commands.Choice(name=message, value=message) for message in messages if current.lower() in message.lower()]
 
+    @comands.command(help="Add a response to an existing custom command.")
+    @is_staff()
+    async def addresponse(self, ctx, key: str, *, message: str):
+        commands = await get_custom_commands(self.bot)
+        if key not in commands:
+            await ctx.send(f"Command `{key}` does not exist. Use `addcommand` to add it.")
+            return
+        await self.bot.database.add_response(key, message)
+        await ctx.send(f"Response added to command `{key}`.")
 
 async def setup(bot):
     await bot.add_cog(CustomCommands(bot))
