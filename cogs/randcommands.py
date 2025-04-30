@@ -221,7 +221,7 @@ class RandCommands(commands.Cog):
         if user is None:
             user = ctx.author
         message = choice(self.bot.config["insults"])
-        await ctx.send(message.format(user.display_name))
+        await ctx.send(message.format(user=user.display_name))
 
 
 async def setup(bot):
