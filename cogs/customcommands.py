@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff, is_admin
+from util import app_is_staff, is_admin, return_or_truncate
 
 class ConfirmView(discord.ui.View):
     def __init__(self, callback, interaction: discord.Interaction): 
@@ -101,8 +101,8 @@ class CustomCommands(commands.Cog):
 
         async def confirm_remove_response(interaction: discord.Interaction):
             await self.bot.database.remove_command_response(key, message)
-            await interaction.response.send_message(f"Response `{message}` removed from command `{key}`.", ephemeral=True)
-        await interaction.response.send_message(f"Are you sure you want to remove response `{message}`?", view=ConfirmView(confirm_remove_response, interaction), ephemeral=True)
+            await interaction.response.send_message(f"Response `{return_or_truncate(message, 20)}` removed from command `{key}`.", ephemeral=True)
+        await interaction.response.send_message(f"Are you sure you want to remove response `{return_or_truncate(message, 20)}` from command `{key}`?", view=ConfirmView(confirm_remove_response, interaction), ephemeral=True)
 
     @remove_response.autocomplete("key")
     async def autocomplete_key(self, interaction, current: str):

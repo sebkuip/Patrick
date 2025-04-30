@@ -7,9 +7,11 @@ class Connector:
     def __init__(self):
         self.database = Path(__file__).parent / "commands.db"
         self.connection = None
-        self.commands_cache = {}
+        self.commands_cache = {} # A cache dictionary for custom commands. The keys are the command names, and the value is a list of responses.
 
     async def connect(self):
+        """Connect to the SQLite database and create the necessary tables if they do not exist.
+        """
         self.connection = await aiosqlite.connect(self.database)
         async with self.connection.cursor() as cursor:
             await cursor.execute(
@@ -27,6 +29,9 @@ class Connector:
             await self.connection.commit()
 
     async def populate_cache(self):
+        """If not connected, connect to the database and populate the commands_cache dictionary with the keys and responses from the database.
+        The keys are the command names, and the value is a list of responses.
+        """
         if self.connection is None:
             await self.connect()
 
@@ -36,14 +41,31 @@ class Connector:
             for row in rows:
                 key, response = row
                 if key not in self.commands_cache:
+                    # Command is not in the cache, add it
                     self.commands_cache[key] = [response]
                 else:
+                    # Command is already in the cache, append the response to the list
                     self.commands_cache[key].append(response)
 
     async def get_command(self, key):
+        """Get a command from the cache. If the command is not in the cache, return None.
+
+        Args:
+            key (str): The command to get
+
+        Returns:
+            list: A list of responses for the command, or None if the command is not in the cache.
+        """
         return self.commands_cache.get(key)
-    
+
     async def add_command(self, key, response):
+        """Add a command to the database and cache. The command is a key in the commands_cache dictionary, and the value is an initial response.
+        The command is added to the command_keys table, and the response is added to the command_responses table with a foreign key reference to the command_keys table.
+
+        Args:
+            key (str): The command name
+            response (str): The initial response for the command
+        """
         async with self.connection.cursor() as cur:
             query = "INSERT INTO command_keys(key) VALUES(?)"
             await cur.execute(query, (key,))
@@ -54,6 +76,11 @@ class Connector:
             self.commands_cache[key] = [response]
 
     async def remove_command(self, key):
+        """Remove a command from the database and cache. The command is removed from the command_keys table, and all responses linked to it are removed from the command_responses table.
+
+        Args:
+            key (str): The command name to remove
+        """
         async with self.connection.cursor() as cur:
             query = "DELETE FROM command_responses WHERE id = (SELECT id FROM command_keys WHERE key = ?)"
             await cur.execute(query, (key,))
@@ -64,6 +91,14 @@ class Connector:
                 del self.commands_cache[key]
 
     async def add_command_response(self, key, response):
+        """Add a response to an already existing command. The response is added to the command_responses table with a foreign key reference to the command_keys table.
+        The response is also added to the commands_cache dictionary for the command.
+        This function does not check if the command exists in the database and should only be used if the command is already in the cache.
+
+        Args:
+            key (str): The name of the command to add a response to
+            response (str): The response to add to the command
+        """
         async with self.connection.cursor() as cur:
             query = "INSERT INTO command_responses(id, response) VALUES((SELECT id FROM command_keys WHERE key = ?), ?)"
             await cur.execute(query, (key, response))
@@ -72,6 +107,14 @@ class Connector:
                 self.commands_cache[key].append(response)
 
     async def remove_command_response(self, key, response):
+        """Removes a response from an already existing command. The response is removed from the command_responses table.
+        This function does not check if the command exists in the database and should only be used if the command is already in the cache.
+        The command is removed from the command_keys table if it has no responses left.
+
+        Args:
+            key (str): The name of the command to remove a response from
+            response (str): The response to remove
+        """
         async with self.connection.cursor() as cur:
             query = "DELETE FROM command_responses WHERE id = (SELECT id FROM command_keys WHERE key = ?) AND response = ?"
             await cur.execute(query, (key, response))
@@ -85,6 +128,12 @@ class Connector:
             await self.connection.commit()
 
     async def add_command_history(self, user, command):
+        """Add a histry entry to the database when a command is ran.
+
+        Args:
+            user (str): The name of the user who ran the command
+            command (str): The name of the command that was ran
+        """
         async with self.connection.cursor() as cur:
             query = "INSERT INTO command_history(user, command) VALUES(?, ?)"
             await cur.execute(query, (user, command))
