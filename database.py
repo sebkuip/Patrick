@@ -7,11 +7,12 @@ class Connector:
     def __init__(self):
         self.database = Path(__file__).parent / "commands.db"
         self.connection = None
-        self.commands_cache = {} # A cache dictionary for custom commands. The keys are the command names, and the value is a list of responses.
+        self.commands_cache = (
+            {}
+        )  # A cache dictionary for custom commands. The keys are the command names, and the value is a list of responses.
 
     async def connect(self):
-        """Connect to the SQLite database and create the necessary tables if they do not exist.
-        """
+        """Connect to the SQLite database and create the necessary tables if they do not exist."""
         self.connection = await aiosqlite.connect(self.database)
         async with self.connection.cursor() as cursor:
             await cursor.execute(
@@ -36,7 +37,9 @@ class Connector:
             await self.connect()
 
         async with self.connection.cursor() as cursor:
-            await cursor.execute("SELECT key, response FROM command_keys JOIN command_responses ON command_keys.id = command_responses.id")
+            await cursor.execute(
+                "SELECT key, response FROM command_keys JOIN command_responses ON command_keys.id = command_responses.id"
+            )
             rows = await cursor.fetchall()
             for row in rows:
                 key, response = row

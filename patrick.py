@@ -10,13 +10,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-from util import (
-    find_automod_matches,
-    is_admin,
-    load_automod_regexes,
-    process_custom_command,
-    reformat_relay_chat,
-)
+from util import (find_automod_matches, is_admin, load_automod_regexes,
+                  process_custom_command, reformat_relay_chat)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -32,6 +27,7 @@ class PatrickHelp(commands.HelpCommand):
     This class is used to format the help message and send it to the user.
     It is a base feature of the discord.py library.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -176,29 +172,33 @@ class PatrickHelp(commands.HelpCommand):
 
 
 class Patrick(commands.Bot):
-    """The main class for the bot. It inherits from commands.Bot and is used to handle the bot's events and commands.
-    """
+    """The main class for the bot. It inherits from commands.Bot and is used to handle the bot's events and commands."""
+
     def __init__(self, logger: logging.Logger, config: dict):
         self.logger = logger
         self.config = config
         self.database = database.Connector()
         self.relay_regex = re.compile(
             self.config.get(
-                "ingame_regex", r"^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$" # Load a default regex if not found in config as a fallback.
+                "ingame_regex",
+                r"^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$",  # Load a default regex if not found in config as a fallback.
             )
         )
-        activity = discord.Game("with Python") # No more kotlin :)
+        activity = discord.Game("with Python")  # No more kotlin :)
 
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
 
         super().__init__(
-            command_prefix=(", ", ","), # The prefix with an extra space was a suggestion in the discord server. Mobile users might have automatic spaces added after punctuation.
+            command_prefix=(
+                ", ",
+                ",",
+            ),  # The prefix with an extra space was a suggestion in the discord server. Mobile users might have automatic spaces added after punctuation.
             case_insensitive=True,
             intents=intents,
             activity=activity,
-            help_command=PatrickHelp(), # Registering the custom help command.
+            help_command=PatrickHelp(),  # Registering the custom help command.
         )
 
     async def on_ready(self):
@@ -245,7 +245,9 @@ class Patrick(commands.Bot):
         Args:
             message (discord.Message): The message that was sent.
         """
-        ctx = await self.get_context(message) # get_context is a discord.py function that create a Context object from a message.
+        ctx = await self.get_context(
+            message
+        )  # get_context is a discord.py function that create a Context object from a message.
         if ctx.command is None and ctx.prefix is not None:
             # If the context found none, but there is a valid prefix, it means the user is trying to run a custom command.
             custom_command_ran = await process_custom_command(self, message)
@@ -268,7 +270,9 @@ class Patrick(commands.Bot):
             await self.database.add_command_history(
                 message.author.display_name, ctx.command.name
             )
-            await self.invoke(ctx) # pass off to discord.py to handle the command processing.
+            await self.invoke(
+                ctx
+            )  # pass off to discord.py to handle the command processing.
 
     async def load_extensions(self):
         """A function to load all extension in the ./cogs directory.
@@ -281,7 +285,7 @@ class Patrick(commands.Bot):
         status = {}
         for extension in listdir("./cogs"):
             if extension.endswith(".py"):
-                status[extension] = "X" # Default to X for not loaded.
+                status[extension] = "X"  # Default to X for not loaded.
         if len(status) == 0:
             logger.info("No extensions found")
             return
@@ -290,10 +294,14 @@ class Patrick(commands.Bot):
         for extension in status:
             try:
                 await self.load_extension(f"cogs.{extension[:-3]}")
-                status[extension] = "L" # Extension loaded and status should update
+                status[extension] = "L"  # Extension loaded and status should update
             except Exception as e:
-                errors.append(e) # If an error occurs, it will be stored to be logged later.
-        maxlen = max(len(str(extension)) for extension in status) # Get the longest extension name to format the output.
+                errors.append(
+                    e
+                )  # If an error occurs, it will be stored to be logged later.
+        maxlen = max(
+            len(str(extension)) for extension in status
+        )  # Get the longest extension name to format the output.
         for extension in status:
             self.logger.info(f" {extension.ljust(maxlen)} | {status[extension]}")
         (

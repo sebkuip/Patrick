@@ -6,11 +6,13 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+
 class RelayMember(discord.Member):
     __slots__ = tuple()
     """A subclass of discord.Member to signify that the member is a relay member.
     The class holds no functionality, but is used to signify that the member is a relay member for permission checks.
     """
+
 
 def return_or_truncate(text, max_length):
     """Takes a string and truncates it to a maximum length, adding ellipsis if truncated.
@@ -26,6 +28,7 @@ def return_or_truncate(text, max_length):
     if len(text) <= max_length:
         return text
     return text[: max_length - 3] + "..."
+
 
 def reformat_relay_chat(bot, message) -> discord.Message:
     """Takes a discord message and checks if it's a server relay message.
@@ -50,6 +53,7 @@ def reformat_relay_chat(bot, message) -> discord.Message:
         return message
     return None
 
+
 async def process_custom_command(bot, message) -> bool:
     """Take a message and check if it is a custom command. If it is, send a random response from the list of responses.
     If the command is not found, return False.
@@ -67,12 +71,15 @@ async def process_custom_command(bot, message) -> bool:
             bot.logger.info(
                 f"User '{message.author.display_name}' ran custom command '{message.content[1:]}'"
             )
-            await message.channel.send(f"{message.author.display_name}: {choice(commands[message.content.removeprefix(prefix)])}")
+            await message.channel.send(
+                f"{message.author.display_name}: {choice(commands[message.content.removeprefix(prefix)])}"
+            )
             await bot.database.add_command_history(
                 message.author.display_name, message.content.removeprefix(prefix)
             )
             return True
     return False
+
 
 def load_automod_regexes(bot):
     """A setup function that loads the automod regexes from the config file.
@@ -106,10 +113,12 @@ def is_staff():
     If the user is a RelayMember, it returns False as well.
     If they don't, it raises a MissingPermissions error.
     """
+
     def predicate(ctx):
         if (
-            not isinstance(ctx.author, RelayMember) and
-            discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["staff"]) is not None
+            not isinstance(ctx.author, RelayMember)
+            and discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["staff"])
+            is not None
         ):
             return True
         else:
@@ -117,19 +126,27 @@ def is_staff():
 
     return commands.check(predicate)
 
+
 def app_is_staff():
     """A decorator that adds a app_commands.Check to a command to check if the user is a staff member.
     It checks if the user has the staff role in the config file. If they do, it returns True.
     If they don't, it sends a message to the user saying they are not staff and returns False.
     """
+
     async def predicate(interaction: discord.Interaction):
         if (
-            discord.utils.get(interaction.user.roles, id=interaction.client.config["roles"]["staff"]) is not None
+            discord.utils.get(
+                interaction.user.roles, id=interaction.client.config["roles"]["staff"]
+            )
+            is not None
         ):
             return True
         else:
-            await interaction.response.send_message("You are not staff.", ephemeral=True)
+            await interaction.response.send_message(
+                "You are not staff.", ephemeral=True
+            )
             return False
+
     return app_commands.check(predicate)
 
 
@@ -139,10 +156,11 @@ def is_admin():
     If the user is a RelayMember, it returns False as well.
     If they don't, it raises a MissingPermissions error.
     """
+
     def predicate(ctx):
         if (
-            not isinstance(ctx.author, Relaymember) and
-            discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["admin"])
+            not isinstance(ctx.author, Relaymember)
+            and discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["admin"])
             is not None
         ):
             return True
@@ -151,18 +169,25 @@ def is_admin():
 
     return commands.check(predicate)
 
+
 def app_is_admin():
     """A decorator that adds a app_commands.Check to a command to check if the user is an admin.
     It checks if the user has the admin role in the config file. If they do, it returns True.
     If they don't, it sends a message to the user saying they are not staff and returns False.
     """
+
     async def predicate(interaction: discord.Interaction):
         if (
-            discord.utils.get(interaction.user.roles, id=interaction.client.config["roles"]["admin"])
+            discord.utils.get(
+                interaction.user.roles, id=interaction.client.config["roles"]["admin"]
+            )
             is not None
         ):
             return True
         else:
-            await interaction.response.send_message("You are not an admin.", ephemeral=True)
+            await interaction.response.send_message(
+                "You are not an admin.", ephemeral=True
+            )
             return False
+
     return app_commands.check(predicate)
