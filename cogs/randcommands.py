@@ -216,6 +216,13 @@ class RandCommands(commands.Cog):
             f"Fractal generation took {end - start:.2f} seconds for seed '{seed}'"
         )
 
+    @commands.command(help="Be mean to someone. >:D")
+    async def insult(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+        message = choice(self.bot.config["insults"])
+        await ctx.send(message.format(user.display_name))
+
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))
