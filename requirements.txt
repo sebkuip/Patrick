@@ -1,5 +1,6 @@
-loguru
-py-cord
+discord.py
 pyyaml
 python-dotenv
-requests
+aiosqlite
+Pillow
+numpy
