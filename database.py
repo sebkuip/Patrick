@@ -1,7 +1,13 @@
 from pathlib import Path
 
 import aiosqlite
+from datetime import datetime, timezone
 
+def convert_datetime(val):
+    """Convert ISO 8601 datetime to datetime.datetime object."""
+    return datetime.fromisoformat(val.decode())
+
+aiosqlite.register_converter("datetime", convert_datetime)
 
 class Connector:
     def __init__(self):
@@ -13,7 +19,7 @@ class Connector:
 
     async def connect(self):
         """Connect to the SQLite database and create the necessary tables if they do not exist."""
-        self.connection = await aiosqlite.connect(self.database)
+        self.connection = await aiosqlite.connect(self.database, detect_types=True)
         async with self.connection.cursor() as cursor:
             await cursor.execute(
                 """CREATE TABLE IF NOT EXISTS command_keys (
@@ -164,8 +170,8 @@ class Connector:
             name (str): The name of the timer
         """
         async with self.connection.cursor() as cur:
-            query = "INSERT INTO timers(user_id, name) VALUES(?, ?)"
-            await cur.execute(query, (user_id, name))
+            query = "INSERT INTO timers(user_id, name, timestamp) VALUES(?, ?, ?)"
+            await cur.execute(query, (user_id, name, datetime.now(timezone.utc)))
             await self.connection.commit()
 
     async def stop_timer(self, user_id, name):
@@ -176,8 +182,9 @@ class Connector:
             name (str): The name of the timer
         """
         async with self.connection.cursor() as cur:
-            query = "DELETE FROM timers WHERE user_id = ? AND name = ? RETURNING *"
-            rows = await cur.fetchall(query, (user_id, name))
+            query = "DELETE FROM timers WHERE user_id = ? AND name = ? RETURNING timestamp"
+            await cur.execute(query, (user_id, name))
+            rows = await cur.fetchall()
             await self.connection.commit()
             return rows
 
@@ -192,5 +199,7 @@ class Connector:
         """
         async with self.connection.cursor() as cur:
             query = "SELECT name, timestamp FROM timers WHERE user_id = ?"
-            rows = await cur.fetchall(query, (user_id,))
+            await cur.execute(query, (user_id,))
+            rows = await cur.fetchall()
+            await self.connection.commit()
             return rows
