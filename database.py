@@ -34,6 +34,13 @@ class Connector:
                                         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
                                     )"""
             )
+            await cursor.execute(
+                """CREATE TABLE IF NOT EXISTS timers (
+                                        user_id INTEGER,
+                                        name VARCHAR(128),
+                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                                    )"""
+            )
             await self.connection.commit()
 
     async def populate_cache(self):
@@ -148,3 +155,42 @@ class Connector:
             query = "INSERT INTO command_history(user, command) VALUES(?, ?)"
             await cur.execute(query, (user, command))
             await self.connection.commit()
+
+    async def start_timer(self, user_id, name):
+        """Start a timer for a user. The timer is stored in the database with the user's ID and the name of the timer.
+
+        Args:
+            user_id (int): The ID of the user who started the timer
+            name (str): The name of the timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "INSERT INTO timers(user_id, name) VALUES(?, ?)"
+            await cur.execute(query, (user_id, name))
+            await self.connection.commit()
+
+    async def stop_timer(self, user_id, name):
+        """Stop a timer for a user. The timer is removed from the database.
+
+        Args:
+            user_id (int): The ID of the user who stopped the timer
+            name (str): The name of the timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "DELETE FROM timers WHERE user_id = ? AND name = ? RETURNING *"
+            rows = await cur.fetchall(query, (user_id, name))
+            await self.connection.commit()
+            return rows
+
+    async def get_timers(self, user_id):
+        """Get all timers for a user. The timers are returned as a list of tuples with the name and timestamp of each timer.
+
+        Args:
+            user_id (int): The ID of the user to get timers for
+
+        Returns:
+            list: A list of tuples with the name and timestamp of each timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "SELECT name, timestamp FROM timers WHERE user_id = ?"
+            rows = await cur.fetchall(query, (user_id,))
+            return rows

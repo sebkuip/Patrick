@@ -6,6 +6,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+class NoRelayException(Exception):
+    pass
 
 class RelayMember(discord.Member):
     __slots__ = tuple()
@@ -191,3 +193,17 @@ def app_is_admin():
             return False
 
     return app_commands.check(predicate)
+
+
+def is_discord_member():
+    """A decorator that adds a commands.Check to a command to check if the user is a discord member.
+    This allows you to stop certain commands from being run by relay members.
+    """
+
+    def predicate(ctx):
+        if not isinstance(ctx.author, RelayMember):
+            return True
+        else:
+            raise commands.MissingPermissions("You are not a discord member.")
+
+    return commands.check(predicate)

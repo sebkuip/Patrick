@@ -3,6 +3,8 @@ import traceback
 import discord
 from discord.ext import commands
 
+from util import NoRelayException
+
 
 class ErrorHandler(commands.Cog):
     def __init__(self, bot):
@@ -43,6 +45,8 @@ class ErrorHandler(commands.Cog):
             await ctx.send("This command is disabled.")
         elif isinstance(error, commands.PrivateMessageOnly):
             await ctx.send("This command can only be used in DMs.")
+        elif isinstance(error, NoRelayException):
+            await ctx.send("This command does not work in the relay chat :'(")
         else:
             await ctx.send("An unknown error occurred while processing the command.")
             traceback.print_tb(error.__traceback__)
