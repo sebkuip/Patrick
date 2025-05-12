@@ -31,6 +31,20 @@ class Timers(commands.Cog):
         else:
             await ctx.send(f"{ctx.author.display_name}: No timer found with the name '{name}'.")
 
+    @timer.command(name="list")
+    @is_discord_member()
+    async def list_timers(self, ctx, member: discord.Member = None):
+        if member is None:
+            member = ctx.author
+        rows = await list_timers(member.id)
+        if rows:
+            timers = "\n".join([f"{row[0]}: {row[1]}" for row in rows])
+            if member == ctx.author:
+                await ctx.send(f"{ctx.author.display_name}: Your timers:\n{timers}")
+            else:
+                await ctx.send(f"{ctx.author.display_name}: {member.display_name}'s timers:\n{timers}")
+        else:
+            await ctx.send(f"{ctx.author.display_name}: No timers found.")
 
 async def setup(bot):
     await bot.add_cog(Timers(bot))
