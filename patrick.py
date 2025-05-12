@@ -335,6 +335,13 @@ logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
 
+@patrick.command(help="Sync slash commands")
+@is_admin()
+async def sync(ctx):
+    patrick.logger.info("Syncing slash commands")
+    commands = await patrick.tree.sync()
+    patrick.logger.info(f"Synced {len(commands)} slash commands")
+    await ctx.send(f"Synced {len(commands)} slash commands")
 
 @patrick.command(help="Reloads all extensions and configs. Admin only.")
 @is_admin()
