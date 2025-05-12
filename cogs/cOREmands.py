@@ -11,7 +11,8 @@ class COREmands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # Discord.py doesn't support using the @app_commands.context_menu decorator in Cogs.
-        # This is the recommended workaround:
+        # This is the recommended workaround.
+        # See: https://github.com/Rapptz/discord.py/issues/7823#issuecomment-1086830458
         ctx_menu = app_commands.ContextMenu(
             name="Delete message",
             callback=self.delete_message,
