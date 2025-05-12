@@ -31,7 +31,7 @@ class Connector:
                 """CREATE TABLE IF NOT EXISTS command_history (
                                         user INTEGER,
                                         command VARCHAR(128),
-                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
                                     )"""
             )
             await self.connection.commit()

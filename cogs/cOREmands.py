@@ -1,6 +1,7 @@
 from random import choice
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from util import is_staff
@@ -46,6 +47,30 @@ class COREmands(commands.Cog):
         channel = member.guild.get_channel(self.bot.config["channels"]["welcome"])
         await channel.send(greeting.format(user=member.mention))
 
+    class DeleteModal(discord.ui.Modal, title="Reason for deleting"):
+        reason = discord.ui.TextInput(
+            label="Reason",
+            placeholder="Why are you deleting this message?",
+            style=discord.TextStyle.long,
+            required=True,
+        )
+
+        def __init__(self, message: discord.Message):
+            super().__init__()
+            self.original_mesasge = message
+
+        async def on_submit(self, interaction: discord.Interaction):
+            await self.original_mesasge.delete()
+            await interaction.response.send_message(
+                f"Message deleted by {interaction.user.mention}: \"{self.reason}\""
+            )
+
+    @app_commands.context_menu(name="Delete Message")
+    @is_staff()
+    async def delete_message(self, interaction: discord.Interaction, message: discord.Message):
+        await interaction.response.send_modal(
+            self.DeleteModal(message)
+        )
 
 async def setup(bot):
     await bot.add_cog(COREmands(bot))
