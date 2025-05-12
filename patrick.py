@@ -240,7 +240,7 @@ class Patrick(commands.Bot):
 
     async def process_commands(self, message: discord.Message) -> None:
         """An override of the process_commands function to add custom command processing.
-        This is called after on_message has prepared teh message for command processing.
+        This is called after on_message has prepared the message for command processing.
 
         Args:
             message (discord.Message): The message that was sent.

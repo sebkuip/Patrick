@@ -159,7 +159,7 @@ def is_admin():
 
     def predicate(ctx):
         if (
-            not isinstance(ctx.author, Relaymember)
+            not isinstance(ctx.author, RelayMember)
             and discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["admin"])
             is not None
         ):
