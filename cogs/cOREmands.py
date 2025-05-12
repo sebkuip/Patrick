@@ -10,6 +10,13 @@ from util import is_staff
 class COREmands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Discord.py doesn't support using the @app_commands.context_menu decorator in Cogs.
+        # This is the recommended workaround:
+        ctx_menu = app_commands.ContextMenu(
+            name="Delete message",
+            callback=self.delete_message,
+        )
+        self.bot.tree.add_command(ctx_menu)
 
     @commands.command(
         help="Shows instructions how to apply for student, builder, or engineer."
@@ -65,7 +72,6 @@ class COREmands(commands.Cog):
                 f"Message deleted by {interaction.user.mention}: \"{self.reason}\""
             )
 
-    @app_commands.context_menu(name="Delete Message")
     @is_staff()
     async def delete_message(self, interaction: discord.Interaction, message: discord.Message):
         await interaction.response.send_modal(
