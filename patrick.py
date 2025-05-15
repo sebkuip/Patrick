@@ -148,7 +148,7 @@ class PatrickHelp(commands.HelpCommand):
         """
         user = self.context.author
         if user.relay:
-            return await user.send("I am not yet able to send DMs to minecraft.")
+            return await self.context.send("I am not yet able to send DMs to minecraft.")
         if len(command.signature) == 0:
             await user.send(
                 f"Usage: `{self.context.bot.command_prefix[1]}{command.name}`"
