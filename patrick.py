@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 import database
 from util import (find_automod_matches, is_admin, load_automod_regexes,
-                  process_custom_command, reformat_relay_chat)
+                  process_custom_command, reformat_relay_chat, split_list)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -46,7 +46,7 @@ class PatrickHelp(commands.HelpCommand):
             )
             for command in self.context.bot.commands
         }
-        custom_commands = context.bot.database.commands_cache
+        custom_commands = self.context.bot.database.commands_cache
         return (commands, custom_commands)
 
     def format_table(
@@ -61,17 +61,11 @@ class PatrickHelp(commands.HelpCommand):
         Returns:
             str: A formatted string containing the commands and custom commands in a table format.
         """
-        for key, value in custom_commands_mapping.items():
-            new_value = value.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-            custom_commands_mapping[key] = (
-                new_value if len(value) < 100 else f"{new_value[:97]}..."
-            )
-
         maxlen_key = max(
             [len(key) for key in commands_mapping.keys()] + [len("Command:")]
         )
         maxlen_value = max(
-            [len(value[0]) for value in commands_mapping.values()] + [len("Message:")]
+            [len(value[0]) for value in commands_mapping.values()] + [len("Signature:")]
         )
         maxlen_description = max(len(value[1]) for value in commands_mapping.values())
 
@@ -85,25 +79,19 @@ class PatrickHelp(commands.HelpCommand):
         )
         text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|-{''.ljust(maxlen_description, '-')}-|"
 
-        maxlen_key = max(
-            [len(key) for key in custom_commands_mapping.keys()] + [len("Command:")]
-        )
-        maxlen_value = max(
-            [len(value) for value in custom_commands_mapping.values()]
-            + [len("Message:")]
-        )
+        if len(custom_commands_mapping) == 0:
+            return text
+
+        custom_commands_split = split_list(list(custom_commands_mapping.keys()), 3)
+        print(custom_commands_mapping)
+        print(custom_commands_split)
+        maxlens = [max(len(key) for key in column) for column in custom_commands_split]
 
         text += "\n\nCustom commands:\n"
-        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
-        text += (
-            f"| {'Command:'.ljust(maxlen_key)} | {'Message:'.ljust(maxlen_value)} |\n"
-        )
-        text += f"|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|\n"
-        text += "\n".join(
-            f"| {key.ljust(maxlen_key)} | {value.ljust(maxlen_value)} |"
-            for key, value in custom_commands_mapping.items()
-        )
-        text += f"\n|-{''.ljust(maxlen_key, '-')}-|-{''.ljust(maxlen_value, '-')}-|"
+        text += f"|-{''.ljust(maxlens[0], '-')}-|-{''.ljust(maxlens[1], '-')}-|-{''.ljust(maxlens[2], '-')}-|\n"
+        for i in range(len(custom_commands_split[0])):
+            text += f"| {custom_commands_split[0][i].ljust(maxlens[0])} | {custom_commands_split[1][i].ljust(maxlens[1]) if  0 <= i < len(custom_commands_split[1]) else ''.ljust(maxlens[1])} | {custom_commands_split[2][i].ljust(maxlens[2]) if 0 <= i < len(custom_commands_split[2]) else ''.ljust(maxlens[2])} |\n"
+        text += f"|-{''.ljust(maxlens[0], '-')}-|-{''.ljust(maxlens[1], '-')}-|-{''.ljust(maxlens[2], '-')}-|\n"
         return text
 
     async def generate_link(self, content: str) -> str:
@@ -148,7 +136,7 @@ class PatrickHelp(commands.HelpCommand):
             mapping (Mapping[Optional[commands.Cog], List[commands.Command]]): A dictionary provided by discord.py containing the Cogs and their commands. Cog might be None for commands not in a cog.
         """
         user = self.context.author
-        if user.relay:
+        if hasattr(user, "relay") and user.relay:
             return await user.send("I am not yet able to send DMs to minecraft.")
         await self.send_help_message(user)
 
@@ -335,6 +323,7 @@ logging.basicConfig(level=logging.INFO)
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
 
+
 @patrick.command(help="Sync slash commands")
 @is_admin()
 async def sync(ctx):
@@ -342,6 +331,7 @@ async def sync(ctx):
     commands = await patrick.tree.sync()
     patrick.logger.info(f"Synced {len(commands)} slash commands")
     await ctx.send(f"Synced {len(commands)} slash commands")
+
 
 @patrick.command(help="Reloads all extensions and configs. Admin only.")
 @is_admin()
