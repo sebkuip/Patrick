@@ -6,6 +6,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+class NoRelayException(Exception):
+    pass
 
 class RelayMember(discord.Member):
     __slots__ = tuple()
@@ -116,7 +118,8 @@ def is_staff():
 
     def predicate(ctx):
         if (
-            not isinstance(ctx.author, RelayMember)
+            not isinstance(ctx.author, discord.User)
+            and not isinstance(ctx.author, RelayMember)
             and discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["staff"])
             is not None
         ):
@@ -135,7 +138,8 @@ def app_is_staff():
 
     async def predicate(interaction: discord.Interaction):
         if (
-            discord.utils.get(
+            not isinstance(interaction.user, discord.User)
+            and discord.utils.get(
                 interaction.user.roles, id=interaction.client.config["roles"]["staff"]
             )
             is not None
@@ -159,7 +163,8 @@ def is_admin():
 
     def predicate(ctx):
         if (
-            not isinstance(ctx.author, Relaymember)
+            not isinstance(ctx.author, discord.User)
+            and not isinstance(ctx.author, RelayMember)
             and discord.utils.get(ctx.author.roles, id=ctx.bot.config["roles"]["admin"])
             is not None
         ):
@@ -191,3 +196,31 @@ def app_is_admin():
             return False
 
     return app_commands.check(predicate)
+
+
+def is_discord_member():
+    """A decorator that adds a commands.Check to a command to check if the user is a discord member.
+    This allows you to stop certain commands from being run by relay members.
+    """
+
+    def predicate(ctx):
+        if not isinstance(ctx.author, RelayMember):
+            return True
+        else:
+            raise commands.MissingPermissions("You are not a discord member.")
+
+    return commands.check(predicate)
+
+
+def split_list(a, n):
+    """Split a list in n parts. The last part may be shorter than the others.
+
+    Args:
+        a (list): The list to split
+        n (int): The amount of parts to split the list into
+
+    Returns:
+        list[list]: A list of n lists with the elements of the original list
+    """
+    k, m = divmod(len(a), n)
+    return list(a[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))

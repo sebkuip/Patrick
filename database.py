@@ -1,7 +1,13 @@
 from pathlib import Path
 
 import aiosqlite
+from datetime import datetime, timezone
 
+def convert_datetime(val):
+    """Convert ISO 8601 datetime to datetime.datetime object."""
+    return datetime.fromisoformat(val.decode())
+
+aiosqlite.register_converter("datetime", convert_datetime)
 
 class Connector:
     def __init__(self):
@@ -13,7 +19,7 @@ class Connector:
 
     async def connect(self):
         """Connect to the SQLite database and create the necessary tables if they do not exist."""
-        self.connection = await aiosqlite.connect(self.database)
+        self.connection = await aiosqlite.connect(self.database, detect_types=True)
         async with self.connection.cursor() as cursor:
             await cursor.execute(
                 """CREATE TABLE IF NOT EXISTS command_keys (
@@ -31,7 +37,14 @@ class Connector:
                 """CREATE TABLE IF NOT EXISTS command_history (
                                         user INTEGER,
                                         command VARCHAR(128),
-                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                                    )"""
+            )
+            await cursor.execute(
+                """CREATE TABLE IF NOT EXISTS timers (
+                                        user_id INTEGER,
+                                        name VARCHAR(128),
+                                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
                                     )"""
             )
             await self.connection.commit()
@@ -148,3 +161,45 @@ class Connector:
             query = "INSERT INTO command_history(user, command) VALUES(?, ?)"
             await cur.execute(query, (user, command))
             await self.connection.commit()
+
+    async def start_timer(self, user_id, name):
+        """Start a timer for a user. The timer is stored in the database with the user's ID and the name of the timer.
+
+        Args:
+            user_id (int): The ID of the user who started the timer
+            name (str): The name of the timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "INSERT INTO timers(user_id, name, timestamp) VALUES(?, ?, ?)"
+            await cur.execute(query, (user_id, name, datetime.now(timezone.utc)))
+            await self.connection.commit()
+
+    async def stop_timer(self, user_id, name):
+        """Stop a timer for a user. The timer is removed from the database.
+
+        Args:
+            user_id (int): The ID of the user who stopped the timer
+            name (str): The name of the timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "DELETE FROM timers WHERE user_id = ? AND name = ? RETURNING timestamp"
+            await cur.execute(query, (user_id, name))
+            rows = await cur.fetchall()
+            await self.connection.commit()
+            return rows
+
+    async def get_timers(self, user_id):
+        """Get all timers for a user. The timers are returned as a list of tuples with the name and timestamp of each timer.
+
+        Args:
+            user_id (int): The ID of the user to get timers for
+
+        Returns:
+            list: A list of tuples with the name and timestamp of each timer
+        """
+        async with self.connection.cursor() as cur:
+            query = "SELECT name, timestamp FROM timers WHERE user_id = ?"
+            await cur.execute(query, (user_id,))
+            rows = await cur.fetchall()
+            await self.connection.commit()
+            return rows

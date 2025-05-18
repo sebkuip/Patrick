@@ -1,14 +1,23 @@
 from random import choice
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
-from util import is_staff
+from util import app_is_staff, is_staff
 
 
 class COREmands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Discord.py doesn't support using the @app_commands.context_menu decorator in Cogs.
+        # This is the recommended workaround.
+        # See: https://github.com/Rapptz/discord.py/issues/7823#issuecomment-1086830458
+        ctx_menu = app_commands.ContextMenu(
+            name="Delete message",
+            callback=self.delete_message,
+        )
+        self.bot.tree.add_command(ctx_menu)
 
     @commands.command(
         help="Shows instructions how to apply for student, builder, or engineer."
@@ -45,6 +54,30 @@ class COREmands(commands.Cog):
         greeting = choice(self.bot.config["greetings"])
         channel = member.guild.get_channel(self.bot.config["channels"]["welcome"])
         await channel.send(greeting.format(user=member.mention))
+
+    class DeleteModal(discord.ui.Modal, title="Reason for deleting"):
+        reason = discord.ui.TextInput(
+            label="Reason",
+            placeholder="Why are you deleting this message?",
+            style=discord.TextStyle.long,
+            required=True,
+        )
+
+        def __init__(self, message: discord.Message):
+            super().__init__()
+            self.original_mesasge = message
+
+        async def on_submit(self, interaction: discord.Interaction):
+            await self.original_mesasge.delete()
+            await interaction.response.send_message(
+                f'Message deleted by {interaction.user.mention}: "{self.reason}"'
+            )
+
+    @app_is_staff()
+    async def delete_message(
+        self, interaction: discord.Interaction, message: discord.Message
+    ):
+        await interaction.response.send_modal(self.DeleteModal(message))
 
 
 async def setup(bot):

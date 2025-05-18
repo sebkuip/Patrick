@@ -45,14 +45,6 @@ class CustomCommands(commands.Cog):
         await self.bot.database.populate_cache()
         self.bot.logger.info("Custom commands loaded")
 
-    @commands.command(help="Sync slash commands")
-    @is_admin()
-    async def sync(self, ctx):
-        self.bot.logger.info("Syncing slash commands")
-        commands = await self.bot.tree.sync()
-        self.bot.logger.info(f"Synced {len(commands)} slash commands")
-        await ctx.send(f"Synced {len(commands)} slash commands")
-
     @app_commands.command(description="Add a custom command to the bot.")
     @app_is_staff()
     async def add(self, interaction, key: str, *, message: str):
