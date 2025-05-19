@@ -2,8 +2,8 @@ import logging
 import sys
 
 
-class LogFormatter(logging.Formatter):
-    """Log formatter. This class will format log messages to be more readable.
+class StreamLogFormatter(logging.Formatter):
+    """Log formatter for terminal streams. This class will format log messages to be more readable.
     The formats use ANSI codes for formatting.
     Each ANSI code starts with \x1b[ (ASCII escape code) and ends with m.
     The codes are separated by semicolons. For example, \x1b[31;1m is red text with bold font.
@@ -42,7 +42,7 @@ class LogFormatter(logging.Formatter):
     """
 
     color_names = {
-        logging.DEBUG: ("\x1b[37;40;1m", "DBUG"),
+        logging.DEBUG: ("\x1b[30;47;1m", "DBUG"),
         logging.INFO: ("\x1b[36;1m", "INFO"),
         logging.WARNING: ("\x1b[33;1m", "WARN"),
         logging.ERROR: ("\x1b[31;1m", "EROR"),
@@ -51,7 +51,7 @@ class LogFormatter(logging.Formatter):
 
     formats = {
         level: logging.Formatter(
-            f"\x1b[0m\x1b[47;30;1m%(asctime)s\x1b[0m \x1b[40;37;1m%(name)s {color_name[0]}%(levelno)s {color_name[1]}\x1b[0m  \x1b[37;1m%(message)s"
+            f"\x1b[0m\x1b[47;30;1m%(asctime)s\x1b[0m \x1b[37;1m%(name)s {color_name[0]}%(levelno)s {color_name[1]}\x1b[0m  \x1b[37;1m%(message)s"
         )
         for level, color_name in color_names.items()
     }
@@ -68,6 +68,39 @@ class LogFormatter(logging.Formatter):
         return log_fmt.format(record)
 
 
+class FileLogFormatter(logging.Formatter):
+    """Log formatter for file streams. This class will format log messages to be more readable.
+    Unlike the StreamLogFormatter, this class does not use ANSI codes for formatting.
+    The formats use the same format as the StreamLogFormatter, but without the ANSI codes.
+    """
+
+    names = {
+        logging.DEBUG: "DBUG",
+        logging.INFO: "INFO",
+        logging.WARNING: "WARN",
+        logging.ERROR: "EROR",
+        logging.CRITICAL: "CRIT",
+    }
+
+    formats = {
+        level: logging.Formatter(
+            f"%(asctime)s %(name)s %(levelno)s {name}  %(message)s"
+        )
+        for level, name in names.items()
+    }
+
+    def format(self, record):
+        log_fmt = self.formats.get(record.levelno, self.formats[logging.INFO])
+
+        if record.exc_info:
+            text = log_fmt.formatException(record.exc_info)
+            record.exc_text = f"{text}"
+
+        record.exc_info = None
+
+        return log_fmt.format(record)
+
+
 def setup_logger(name, level=logging.INFO):
     """Setup a logger with the given name and level."""
     logger = logging.getLogger(name)
@@ -76,19 +109,13 @@ def setup_logger(name, level=logging.INFO):
     # Create console handler
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(level)
+    ch.setFormatter(StreamLogFormatter())
+    logger.addHandler(ch)
 
     # Create file handler
     fh = logging.FileHandler("latest.log", mode="w")
     fh.setLevel(level)
-
-    # Create formatter
-    formatter = LogFormatter()
-
-    # Add formatter to console handler
-    ch.setFormatter(formatter)
-
-    # Add console and file handler to logger
-    logger.addHandler(ch)
+    fh.setFormatter(FileLogFormatter())
     logger.addHandler(fh)
 
-    return logger, formatter
+    return logger

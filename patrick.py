@@ -10,7 +10,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
-from logger import setup_logger
+from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
                   process_custom_command, reformat_relay_chat, split_list)
 
@@ -316,10 +316,10 @@ config = load_config()
 # Set up logging
 logging_level = config.get("logging_level", "").upper()
 if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
-    logger, formatter = setup_logger("patrick", logging_level)
+    logger = setup_logger("patrick", logging_level)
 else:
     print("Invalid logging level in config.yaml, defaulting to INFO")
-    logger, formatter = setup_logger("patrick", "INFO")
+    logger = setup_logger("patrick", "INFO")
 
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
@@ -350,4 +350,4 @@ async def reload(ctx):
     await m.delete(delay=5)
 
 
-patrick.run(TOKEN, log_formatter=formatter, log_level=logging_level)
+patrick.run(TOKEN, log_formatter=StreamLogFormatter(), log_level=logging_level)
