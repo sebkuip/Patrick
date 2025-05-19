@@ -101,7 +101,7 @@ class FileLogFormatter(logging.Formatter):
         return log_fmt.format(record)
 
 
-def setup_logger(name, level=logging.INFO):
+def setup_logger(name, level=logging.INFO, logging_file="latest.log"):
     """Setup a logger with the given name and level."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -112,10 +112,11 @@ def setup_logger(name, level=logging.INFO):
     ch.setFormatter(StreamLogFormatter())
     logger.addHandler(ch)
 
+    if logging_file:
     # Create file handler
-    fh = logging.FileHandler("latest.log", mode="w")
-    fh.setLevel(level)
-    fh.setFormatter(FileLogFormatter())
-    logger.addHandler(fh)
+        fh = logging.FileHandler(logging_file, mode="w")
+        fh.setLevel(level)
+        fh.setFormatter(FileLogFormatter())
+        logger.addHandler(fh)
 
     return logger

@@ -316,10 +316,10 @@ config = load_config()
 # Set up logging
 logging_level = config.get("logging_level", "").upper()
 if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
-    logger = setup_logger("patrick", logging_level)
+    logger = setup_logger("patrick", logging_level, config.get("logging_file", None))
 else:
     print("Invalid logging level in config.yaml, defaulting to INFO")
-    logger = setup_logger("patrick", "INFO")
+    logger = setup_logger("patrick", "INFO", config.get("logging_file", None))
 
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
