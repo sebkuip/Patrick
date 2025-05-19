@@ -77,13 +77,18 @@ def setup_logger(name, level=logging.INFO):
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(level)
 
+    # Create file handler
+    fh = logging.FileHandler("latest.log", mode="w")
+    fh.setLevel(level)
+
     # Create formatter
     formatter = LogFormatter()
 
     # Add formatter to console handler
     ch.setFormatter(formatter)
 
-    # Add console handler to logger
+    # Add console and file handler to logger
     logger.addHandler(ch)
+    logger.addHandler(fh)
 
     return logger, formatter
