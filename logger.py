@@ -41,19 +41,19 @@ class LogFormatter(logging.Formatter):
     These are just a few common ones. You can find the full list at https://docs.python.org/3/library/logging.html#logrecord-attributes
     """
 
-    colors = {
-        logging.DEBUG: "\x1b[37;40;1m",
-        logging.INFO: "\x1b[36;1m",
-        logging.WARNING: "\x1b[33;1m",
-        logging.ERROR: "\x1b[31;1m",
-        logging.CRITICAL: "\x1b[37;41;1m",
+    color_names = {
+        logging.DEBUG: ("\x1b[37;40;1m", "DBUG"),
+        logging.INFO: ("\x1b[36;1m", "INFO"),
+        logging.WARNING: ("\x1b[33;1m", "WARN"),
+        logging.ERROR: ("\x1b[31;1m", "EROR"),
+        logging.CRITICAL: ("\x1b[37;41;1m", "CRIT"),
     }
 
     formats = {
         level: logging.Formatter(
-            f"\x1b[0m\x1b[47;30;1m%(asctime)s\x1b[0m \x1b[40;37;1m%(name)s {color}%(levelno)s %(levelname)s  \x1b[0m\x1b[37;1m%(message)s"
+            f"\x1b[0m\x1b[47;30;1m%(asctime)s\x1b[0m \x1b[40;37;1m%(name)s {color_name[0]}%(levelno)s {color_name[1]}\x1b[0m  \x1b[37;1m%(message)s"
         )
-        for level, color in colors.items()
+        for level, color_name in color_names.items()
     }
 
     def format(self, record):
