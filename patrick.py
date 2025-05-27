@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 
 import database
 from util import (find_automod_matches, is_admin, load_automod_regexes,
-                  process_custom_command, reformat_relay_chat, split_list)
+                  process_custom_command, reformat_relay_chat, split_list,
+                  fetch_discourse_post)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -223,6 +224,10 @@ class Patrick(commands.Bot):
                 message = reformat_relay_chat(self, message)
                 if message is None:
                     return
+
+        embed = await fetch_discourse_post(self, message.content)
+        if embed is not None:
+            await message.reply(embed=embed, mention_author=False)
 
         await self.process_commands(message)
 

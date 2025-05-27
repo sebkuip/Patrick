@@ -1,6 +1,7 @@
 import re
 import typing
 from random import choice
+from datetime import datetime
 
 import discord
 from discord import app_commands
@@ -15,6 +16,57 @@ class RelayMember(discord.Member):
     The class holds no functionality, but is used to signify that the member is a relay member for permission checks.
     """
 
+class DiscoursePost:
+    """A class to represent a post to a discourse topic.
+    """
+
+    def __init__(self, data: dict, id: int):
+        self.title = data["title"]
+        if id:
+            for post in data["post_stream"]["posts"]:
+                if post["post_number"] == id:
+                    post_data = post
+                    break
+            else:
+                post_data = data["post_stream"]["posts"][0]
+        else:
+            post_data = data["post_stream"]["posts"][0]
+        self.content = post_data["cooked"]
+        self.author = post_data["display_username"]
+        self.url = f"https://discourse.openredstone.org{post_data['post_url']}"
+        self.avatar = f"https://discourse.openredstone.org{post_data['avatar_template'].replace("{size}", "128")}"
+        self.created_at = datetime.fromisoformat(post_data["created_at"])
+
+    def to_embed(self) -> discord.Embed:
+        """Converts the DiscoursePost to a discord.Embed object.
+
+        Returns:
+            discord.Embed: The embed object containing the post information.
+        """
+        embed = discord.Embed(
+            title=self.title,
+            description=return_or_truncate(remove_html_tags(self.content), 1000),
+            url=self.url,
+            timestamp=self.created_at,
+        )
+        embed.set_author(name=self.author, icon_url=self.avatar)
+        return embed
+    
+def remove_html_tags(text: str) -> str:
+    """Removes HTML tags from a string.
+
+    Args:
+        text (str): The string to remove HTML tags from.
+
+    Returns:
+        str: The string with HTML tags removed.
+    """
+    a_tags = re.compile(r"<a href=\"([^\"]+)?\".*>(.*?)<\/a>", re.IGNORECASE)
+    for match in a_tags.finditer(text):
+        text = text.replace(match.group(0), f"[{match.group(2)}]({match.group(1)})")
+
+    clean = re.compile("<.*?>")
+    return clean.sub("", text)
 
 def return_or_truncate(text, max_length):
     """Takes a string and truncates it to a maximum length, adding ellipsis if truncated.
@@ -224,3 +276,32 @@ def split_list(a, n):
     """
     k, m = divmod(len(a), n)
     return list(a[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))
+
+async def fetch_discourse_post(bot, message: str) -> typing.Optional[DiscoursePost]:
+    """Fetches a discourse post from a given link.
+
+    Args:
+        link (str): The URL of the discourse post.
+
+    Returns:
+        dict: The JSON response from the discourse API, or None if the post is not found.
+    """
+    match = re.search(r"(https?:\/\/)?discourse\.openredstone\.org\/t\/[^/]+/\d+/?(\d+)?", message)
+    if match:
+        id = match.group(2)
+        if id:
+            id = int(id)
+        else:
+            id = None
+        link = match.group(0) + ".json"
+        async with bot.aiosession.get(link) as response:
+            if response.status == 200:
+                data = await response.json()
+                if data:
+                    return DiscoursePost(data, id).to_embed()
+                else:
+                    return None
+            else:
+                return None
+
+    return None
