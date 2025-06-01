@@ -1,4 +1,5 @@
 import logging
+from logging import handlers
 import sys
 
 
@@ -101,7 +102,7 @@ class FileLogFormatter(logging.Formatter):
         return log_fmt.format(record)
 
 
-def setup_logger(name, level=logging.INFO, logging_file="latest.log"):
+def setup_logger(name, level=logging.INFO, logging_settings={}):
     """Setup a logger with the given name and level."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -112,9 +113,14 @@ def setup_logger(name, level=logging.INFO, logging_file="latest.log"):
     ch.setFormatter(StreamLogFormatter())
     logger.addHandler(ch)
 
-    if logging_file:
-    # Create file handler
-        fh = logging.FileHandler(logging_file, mode="w")
+    if logging_settings.get("file", False):
+        # Create file handler
+        fh = handlers.TimedRotatingFileHandler(
+            logging_settings.get("file", "latest.log"),
+            interval=logging_settings.get("rollover_hours", 24),
+            when="H",
+            backupCount=logging_settings.get("amount_files", 7),
+        )
         fh.setLevel(level)
         fh.setFormatter(FileLogFormatter())
         logger.addHandler(fh)

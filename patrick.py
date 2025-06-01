@@ -314,12 +314,13 @@ class Patrick(commands.Bot):
 config = load_config()
 
 # Set up logging
-logging_level = config.get("logging_level", "").upper()
+logging_settings = config.get("logging", {})
+logging_level = logging_settings.get("level", "INFO").upper()
 if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
-    logger = setup_logger("patrick", logging_level, config.get("logging_file", None))
+    logger = setup_logger("patrick", logging_level, logging_settings)
 else:
     print("Invalid logging level in config.yaml, defaulting to INFO")
-    logger = setup_logger("patrick", "INFO", config.get("logging_file", None))
+    logger = setup_logger("patrick", "INFO", logging_settings)
 
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
