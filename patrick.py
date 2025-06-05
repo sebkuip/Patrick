@@ -183,7 +183,7 @@ class Patrick(commands.Bot):
                 ", ",
                 ",",
             ),  # The prefix with an extra space was a suggestion in the discord server. Mobile users might have automatic spaces added after punctuation.
-            case_insensitive=True,
+            case_insensitive=False,
             intents=intents,
             activity=activity,
             help_command=PatrickHelp(),  # Registering the custom help command.
