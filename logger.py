@@ -117,8 +117,7 @@ def setup_logger(name, level=logging.INFO, logging_settings={}):
         # Create file handler
         fh = handlers.TimedRotatingFileHandler(
             logging_settings.get("file", "latest.log"),
-            interval=logging_settings.get("rollover_hours", 24),
-            when="H",
+            when="midnight",
             backupCount=logging_settings.get("amount_files", 7),
         )
         fh.setLevel(level)

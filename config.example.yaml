@@ -35,7 +35,6 @@ logging:
   level: "WARN" # one of: INFO, WARN, ERROR, CRITICAL
   file: "latest.log" # Filename. Will not produce files when this field is empty
   amount_files: 5 # How many files to keep
-  rollover_hours: 24 # After how many hours does rotation happen
 greetings:
   - "Welcome to ORE, {user}! Make sure to run `/discord` ingame and link your account to view the rest of DiscOREd!"
   - "Oh hi, {user}! Run `/discord` ingame to link your account to view the rest of DiscOREd!"
