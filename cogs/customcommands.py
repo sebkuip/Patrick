@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff, is_admin, return_or_truncate
+from util import app_is_staff, return_or_truncate
 
 
 class ConfirmView(discord.ui.View):

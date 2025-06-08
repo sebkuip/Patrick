@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from fractal import fractal
-from util import is_admin, is_staff
+from util import is_staff
 
 
 class RandCommands(commands.Cog):
