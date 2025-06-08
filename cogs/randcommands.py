@@ -155,13 +155,14 @@ class RandCommands(commands.Cog):
     async def factorize(self, ctx, number: int):
         if number < 1:
             return await ctx.send("Number must be greater than 0.")
+        pow_map = {"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
         factors = self.prime_factors(number)
         powered_factors = []
         for factor in set(factors):
             count = factors.count(factor)
             if count > 1:
                 powered_factors.append(
-                    f"{factor}^{str(count).translate({"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"})}"
+                    f"{factor}^{str(count).translate(pow_map)}"
                 )
             else:
                 powered_factors.append(f"{factor}")
