@@ -148,7 +148,7 @@ class PatrickHelp(commands.HelpCommand):
             command (commands.Command): The command the user requested help for.
         """
         user = self.context.author
-        if user.relay:
+        if hasattr(user, "relay") and user.relay:
             return await self.context.send(
                 "I am not yet able to send DMs to minecraft."
             )
