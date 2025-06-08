@@ -158,7 +158,13 @@ class RandCommands(commands.Cog):
         if number < 1:
             return await ctx.send("Number must be greater than 0.")
         pow_map = {"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
-        factors = self.prime_factors(number)
+        try:
+            factors = await asyncio.wait_for(
+                asyncio.to_thread(self.prime_factors, number),
+                timeout=5.0
+            )
+        except asyncio.TimeoutError:
+            return await ctx.send(f"{ctx.author.display_name}: Calculation took too long, terminating.")
         powered_factors = []
         for factor in set(factors):
             count = factors.count(factor)
