@@ -226,11 +226,11 @@ class RandCommands(commands.Cog):
         )
 
     @commands.command(help="Be mean to someone. >:D")
-    async def insult(self, ctx, user: discord.Member = None):
-        if user is None:
-            user = ctx.author
+    async def insult(self, ctx, target: str = None):
+        if target is None:
+            target = ctx.author.display_name
         message = choice(self.bot.config["insults"])
-        await ctx.send(message.format(user=user.display_name))
+        await ctx.send(message.format(user=target))
 
 
 async def setup(bot):
