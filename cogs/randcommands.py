@@ -83,8 +83,10 @@ class RandCommands(commands.Cog):
     async def rng(self, ctx, num: int):
         if num < 1:
             return await ctx.send("Number must be greater than 0.")
+        if num > 128:
+            return await ctx.send("Number must not be greater than 128.")
         generated = getrandbits(num)
-        await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
+        await ctx.send(f"{ctx.author.display_name}: `{generated:0{num}b}`")
 
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
