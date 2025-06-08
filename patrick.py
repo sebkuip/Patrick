@@ -250,7 +250,7 @@ class Patrick(commands.Bot):
                 self.logger.info(
                     f"User '{ctx.author.display_name}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
                 )
-                return await ctx.send("Unrecognized command :'(")
+                return await ctx.send(f"{ctx.author.display_name}: Unrecognized command :'(")
 
         if ctx.valid:
             # The context is valid when a command and prefix was found.

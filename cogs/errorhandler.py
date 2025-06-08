@@ -12,6 +12,9 @@ class ErrorHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
 
+        async def respond(message):
+            await ctx.send(f"{ctx.author.display_name}: {message}")
+
         if hasattr(ctx.command, "on_error"):
             return
 
@@ -20,34 +23,34 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.NotOwner) or isinstance(
             error, commands.MissingPermissions
         ):
-            await ctx.send("Unauthorized :'(")
+            await respond("Unauthorized :'(")
         elif isinstance(error, commands.MemberNotFound):
-            await ctx.send("Member not found.")
+            await respond("Member not found.")
         elif isinstance(error, commands.BadArgument):
-            await ctx.send("The argument you gave is invalid/cannot be processed.")
+            await respond("The argument you gave is invalid/cannot be processed.")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            await respond(
                 f"Command usage: `,{ctx.command.name} {ctx.command.signature}`"
             )
         elif isinstance(error, commands.CommandNotFound):
             self.bot.logger.info(
                 f"User '{ctx.author.display_name}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
             )
-            await ctx.send("Unrecognized command :'(")
+            await respond("Unrecognized command :'(")
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(
+            await respond(
                 f"This command is on cooldown. Try again in {error.retry_after:.2f} seconds."
             )
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("Bot does not have permissions for this command.")
+            await respond("Bot does not have permissions for this command.")
         elif isinstance(error, commands.DisabledCommand):
-            await ctx.send("This command is disabled.")
+            await respond("This command is disabled.")
         elif isinstance(error, commands.PrivateMessageOnly):
-            await ctx.send("This command can only be used in DMs.")
+            await respond("This command can only be used in DMs.")
         elif isinstance(error, NoRelayException):
-            await ctx.send("This command does not work in the relay chat :'(")
+            await respond("This command does not work in the relay chat :'(")
         else:
-            await ctx.send("An unknown error occurred while processing the command.")
+            await respond("An unknown error occurred while processing the command.")
             traceback.print_tb(error.__traceback__)
             self.bot.logger.error(error)
 
