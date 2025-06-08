@@ -133,7 +133,7 @@ class RandCommands(commands.Cog):
             return await ctx.send("No pikl rank :(")
         await user.add_roles(pikl_role)
         await ctx.send(f"{user.mention} got pikl'd.")
-        await asyncio.sleep(120_000)
+        await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
     @commands.command(help="Googles something.")
