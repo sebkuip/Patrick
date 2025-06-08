@@ -48,8 +48,8 @@ class RandCommands(commands.Cog):
             title=data["title"],
             description=data["alt"],
             url=f"https://xkcd.com/{data['num']}",
-            image=data["img"],
         )
+        embed.set_image(url=data["img"])
         embed.set_footer(
             text=f"{data['num']} ({data['month']}/{data['day']}/{data['year']})"
         )
