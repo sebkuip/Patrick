@@ -232,6 +232,20 @@ class RandCommands(commands.Cog):
         message = choice(self.bot.config["insults"])
         await ctx.send(message.format(user=target))
 
+    @commands.command(help="Convert a binary number to decimal.")
+    async def b2d(self, ctx, binary: str):
+        try:
+            decimal = int(binary, 2)
+            await ctx.send(f"{ctx.author.display_name}: {decimal}")
+        except ValueError:
+            await ctx.send("Invalid binary number provided.")
+
+    @commands.command(help="Convert a decimal number to binary.")
+    async def d2b(self, ctx, decimal: int):
+        if decimal < 0:
+            return await ctx.send("Decimal number must be non-negative.")
+        binary = bin(decimal)[2:]  # Remove the '0b' prefix
+        await ctx.send(f"{ctx.author.display_name}: {binary}")
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))
