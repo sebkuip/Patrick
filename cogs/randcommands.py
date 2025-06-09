@@ -15,6 +15,34 @@ class RandCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        async def cog_load(self):
+        bases = {
+        "b": 2,
+        "o": 8,
+        "d": 10,
+        "h": 16,
+    }
+        async def convert_func(ctx, number: str):
+            from_base = ctx.command.extras["from_base"]
+            to_base = ctx.command.extras["to_base"]
+            try:
+                converted = baseconvert(number, bases[from_base], bases[to_base])
+                await ctx.send(f"{ctx.author.display_name}: {converted}")
+            except ValueError as e:
+                await ctx.send(f"{ctx.author.display_name}: Invalid input number for base {from_base}")
+
+        for from_base, from_value in bases.items():
+            for to_base, to_value in bases.items():
+                if from_base == to_base:
+                    continue
+                self.bot.add_command(commands.Command(
+                        convert_func,
+                        help=f"Convert a number from base {from_value} to base {to_value}.",
+                        name=f"{from_base}2{to_base}",
+                        extras={"from_base": from_base, "to_base": to_base},
+                    )
+                )
+
     @commands.command(help="Performs a ping test and shows results.")
     async def ping(self, ctx):
         start = perf_counter()
