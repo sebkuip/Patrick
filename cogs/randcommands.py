@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from fractal import fractal
-from util import is_admin, is_staff
+from util import is_staff
 
 
 class RandCommands(commands.Cog):
@@ -48,8 +48,8 @@ class RandCommands(commands.Cog):
             title=data["title"],
             description=data["alt"],
             url=f"https://xkcd.com/{data['num']}",
-            image=data["img"],
         )
+        embed.set_image(url=data["img"])
         embed.set_footer(
             text=f"{data['num']} ({data['month']}/{data['day']}/{data['year']})"
         )
@@ -83,8 +83,10 @@ class RandCommands(commands.Cog):
     async def rng(self, ctx, num: int):
         if num < 1:
             return await ctx.send("Number must be greater than 0.")
+        if num > 128:
+            return await ctx.send("Number must not be greater than 128.")
         generated = getrandbits(num)
-        await ctx.send(f"{ctx.author.display_name}: {generated:0{num}b}")
+        await ctx.send(f"{ctx.author.display_name}: `{generated:0{num}b}`")
 
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
@@ -112,7 +114,7 @@ class RandCommands(commands.Cog):
     @commands.command(help="Slap someone.")
     @commands.guild_only()
     async def slap(self, ctx, user: discord.Member):
-        slap_role = discord.utils.get(ctx.guild.roles, name="slapped")
+        slap_role = discord.utils.get(ctx.guild.roles, name="Slapped")
         if slap_role is None:
             return await ctx.send("No slapped rank :(")
         if slap_role in user.roles:
@@ -131,7 +133,7 @@ class RandCommands(commands.Cog):
             return await ctx.send("No pikl rank :(")
         await user.add_roles(pikl_role)
         await ctx.send(f"{user.mention} got pikl'd.")
-        await asyncio.sleep(120_000)
+        await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
     @commands.command(help="Googles something.")
@@ -155,13 +157,20 @@ class RandCommands(commands.Cog):
     async def factorize(self, ctx, number: int):
         if number < 1:
             return await ctx.send("Number must be greater than 0.")
-        factors = self.prime_factors(number)
+        pow_map = {"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
+        try:
+            factors = await asyncio.wait_for(
+                asyncio.to_thread(self.prime_factors, number),
+                timeout=5.0
+            )
+        except asyncio.TimeoutError:
+            return await ctx.send(f"{ctx.author.display_name}: Calculation took too long, terminating.")
         powered_factors = []
         for factor in set(factors):
             count = factors.count(factor)
             if count > 1:
                 powered_factors.append(
-                    f"{factor}^{str(count).translate({"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"})}"
+                    f"{factor}^{str(count).translate(pow_map)}"
                 )
             else:
                 powered_factors.append(f"{factor}")
@@ -217,11 +226,11 @@ class RandCommands(commands.Cog):
         )
 
     @commands.command(help="Be mean to someone. >:D")
-    async def insult(self, ctx, user: discord.Member = None):
-        if user is None:
-            user = ctx.author
+    async def insult(self, ctx, target: str = None):
+        if target is None:
+            target = ctx.author.display_name
         message = choice(self.bot.config["insults"])
-        await ctx.send(message.format(user=user.display_name))
+        await ctx.send(message.format(user=target))
 
 
 async def setup(bot):

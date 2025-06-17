@@ -44,10 +44,17 @@ class COREmands(commands.Cog):
     @commands.command(help="Give the trusted role to someone.")
     @is_staff()
     async def trust(self, ctx, member: discord.Member):
-        await member.add_roles(ctx.guild.get_role(self.bot.config["roles"]["trusted"]))
-        await ctx.send(
-            f"{ctx.author.display_name}: {member.display_name} is now Trusted."
-        )
+        role = ctx.guild.get_role(self.bot.config["roles"]["trusted"])
+        if role in member.roles:
+            await member.remove_roles(role)
+            await ctx.send(
+                f"{ctx.author.display_name}: {member.display_name} is no longer Trusted."
+            )
+        else:
+            await member.add_roles(role)
+            await ctx.send(
+                f"{ctx.author.display_name}: {member.display_name} is now Trusted."
+            )
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):

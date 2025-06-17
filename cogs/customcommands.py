@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff, is_admin, return_or_truncate
+from util import app_is_staff, return_or_truncate
 
 
 class ConfirmView(discord.ui.View):
@@ -60,7 +60,10 @@ class CustomCommands(commands.Cog):
             f"Command `{key}` added.", ephemeral=True
         )
 
-    @app_commands.command(description="Add a response to an already existing command.")
+    @app_commands.command(
+        name="addresponse",
+        description="Add a response to an already existing command."
+    )
     @app_is_staff()
     async def add_response(self, interaction, key: str, *, message: str):
         if key not in self.bot.database.commands_cache:
@@ -113,6 +116,7 @@ class CustomCommands(commands.Cog):
         ]
 
     @app_commands.command(
+        name="removeresponse",
         description="Remove a response from an already existing command."
     )
     @app_is_staff()
