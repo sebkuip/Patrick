@@ -10,6 +10,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import database
+from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
                   process_custom_command, reformat_relay_chat, split_list)
 
@@ -148,8 +149,10 @@ class PatrickHelp(commands.HelpCommand):
             command (commands.Command): The command the user requested help for.
         """
         user = self.context.author
-        if user.relay:
-            return await self.context.send("I am not yet able to send DMs to minecraft.")
+        if hasattr(user, "relay") and user.relay:
+            return await self.context.send(
+                "I am not yet able to send DMs to minecraft."
+            )
         if len(command.signature) == 0:
             await user.send(
                 f"Usage: `{self.context.bot.command_prefix[1]}{command.name}`"
@@ -184,7 +187,7 @@ class Patrick(commands.Bot):
                 ", ",
                 ",",
             ),  # The prefix with an extra space was a suggestion in the discord server. Mobile users might have automatic spaces added after punctuation.
-            case_insensitive=True,
+            case_insensitive=False,
             intents=intents,
             activity=activity,
             help_command=PatrickHelp(),  # Registering the custom help command.
@@ -248,7 +251,7 @@ class Patrick(commands.Bot):
                 self.logger.info(
                     f"User '{ctx.author.display_name}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
                 )
-                return await ctx.send("Unrecognized command :'(")
+                return await ctx.send(f"{ctx.author.display_name}: Unrecognized command :'(")
 
         if ctx.valid:
             # The context is valid when a command and prefix was found.
@@ -312,14 +315,13 @@ class Patrick(commands.Bot):
 config = load_config()
 
 # Set up logging
-logging_level = config.get("logging_level", "").upper()
+logging_settings = config.get("logging", {})
+logging_level = logging_settings.get("level", "INFO").upper()
 if logging_level in ("DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"):
-    logging.basicConfig(level=logging.getLevelName(logging_level))
+    logger = setup_logger("patrick", logging_level, logging_settings)
 else:
     print("Invalid logging level in config.yaml, defaulting to INFO")
-    logging.basicConfig(level=logging.INFO)
-logger: logging.Logger = logging.getLogger("patrick")
-logging.basicConfig(level=logging.INFO)
+    logger = setup_logger("patrick", "INFO", logging_settings)
 
 patrick: Patrick = Patrick(logger, config)
 load_automod_regexes(patrick)
@@ -350,4 +352,4 @@ async def reload(ctx):
     await m.delete(delay=5)
 
 
-patrick.run(TOKEN)
+patrick.run(TOKEN, log_formatter=StreamLogFormatter(), log_level=logging_level)

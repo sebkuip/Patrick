@@ -19,7 +19,7 @@ class RoleButton(discord.ui.Button):
         else:
             await interaction.user.add_roles(self.role)
             await interaction.response.send_message(
-                f"{interaction.user.display_name},you are now subscribed to {self.role.name} notifications.",
+                f"{interaction.user.display_name}, you are now subscribed to {self.role.name} notifications.",
                 ephemeral=True,
             )
 
