@@ -265,5 +265,4 @@ async def create_deletion_embed(
     embed.add_field(name="Context", value=message.jump_url, inline=True)
     embed.set_footer(text=f"Message ID: {message.id}")
     embed.timestamp = discord.utils.utcnow()
-    print(message.attachments)
     return (embed, attachments)
