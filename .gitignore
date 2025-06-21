@@ -6,3 +6,4 @@ commands.db
 Pipfile.lock
 Pipfile
 *.log.*
+__pycache__/

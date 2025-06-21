@@ -12,7 +12,8 @@ from dotenv import load_dotenv
 import database
 from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
-                  process_custom_command, reformat_relay_chat, split_list)
+                  process_custom_command, reformat_relay_chat, split_list,
+                  create_deletion_embed)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -219,6 +220,18 @@ class Patrick(commands.Bot):
             if find_automod_matches(self, message):
                 logger.info(
                     f"Automod triggered for user {message.author.display_name} with message {message.content}"
+                )
+                channel = message.guild.get_channel(
+                    self.config["channels"]["audit_log"]
+                )
+                embed, attachments = await create_deletion_embed(
+                    self.user,
+                    "Automod triggered",
+                    message,
+                )
+                await channel.send(
+                    embed=embed,
+                    files=attachments,
                 )
                 await message.delete()
                 return
