@@ -247,6 +247,7 @@ async def create_deletion_embed(
         title="ORE Moderation Services",
         color=discord.Color.red(),
     )
+    embed.set_thumbnail(url="https://i.imgflip.com/44o9ir.png")
     embed.add_field(name="Staff Member", value=staff.mention, inline=False)
     embed.add_field(name="User", value=message.author.mention, inline=True)
     embed.add_field(name="Display Name", value=message.author.display_name, inline=True)
