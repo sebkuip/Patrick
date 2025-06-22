@@ -258,3 +258,42 @@ def baseconvert(number: str, base_from: int, base_to: int) -> str:
     
     return ''.join(str(x) for x in digits[::-1])  # Reverse the list and join as string
 
+async def create_deletion_embed(
+        staff: typing.Union[discord.Member, discord.User],
+        reason: str,
+        message: discord.Message,
+) -> typing.Tuple[discord.Embed, typing.List[discord.File]]:
+    """Creates an embed for a deletion action.
+
+    Args:
+        staff (discord.Member): The staff member who performed the deletion.
+        reason (str): The reason for the deletion.
+        message (discord.Message): The message that was deleted.
+
+    Returns:
+        discord.Embed: An embed containing the deletion information.
+    """
+    embed = discord.Embed(
+        title="ORE Moderation Services",
+        color=discord.Color.red(),
+    )
+    embed.set_thumbnail(url="https://i.imgflip.com/44o9ir.png")
+    embed.add_field(name="Staff Member", value=staff.mention, inline=False)
+    embed.add_field(name="User", value=message.author.mention, inline=True)
+    embed.add_field(name="Display Name", value=message.author.display_name, inline=True)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    if len(message.message_snapshots) > 0:
+        embed.add_field(
+            name="Forwarded Message Content",
+            value=message.message_snapshots[0].content or "No content",
+            inline=False,
+        )
+        attachments = [await attachment.to_file() for attachment in message.message_snapshots[0].attachments]
+    else:
+        embed.add_field(name="Message Content", value=message.content or "No content", inline=False)
+        attachments = [await attachment.to_file() for attachment in message.attachments]
+    embed.add_field(name="Channel", value=message.channel.jump_url, inline=True)
+    embed.add_field(name="Context", value=message.jump_url, inline=True)
+    embed.set_footer(text=f"Message ID: {message.id}")
+    embed.timestamp = discord.utils.utcnow()
+    return (embed, attachments)
