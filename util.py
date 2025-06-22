@@ -238,6 +238,9 @@ def baseconvert(number: str, base_from: int, base_to: int) -> str:
     Returns:
         str: The converted number as a string.
     """
+    characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/"
+    if base_from > len(characters) or base_to > len(characters):
+        raise ValueError(f"Base must be between 2 and {len(characters)}.")
     if base_from < 2 or base_to < 2:
         raise ValueError("Base must be at least 2.")
     
@@ -250,7 +253,7 @@ def baseconvert(number: str, base_from: int, base_to: int) -> str:
     
     digits = []
     while decimal_number > 0:
-        digits.append(int(decimal_number % base_to))
+        digits.append(characters[int(decimal_number % base_to)])
         decimal_number //= base_to
     
     return ''.join(str(x) for x in digits[::-1])  # Reverse the list and join as string
