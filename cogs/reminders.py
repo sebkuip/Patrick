@@ -11,7 +11,7 @@ class Reminders(commands.Cog):
         self.check_reminders.start()
 
     @is_discord_member()
-    @commands.command(name='remindme', aliases=['reminder'])
+    @commands.command(name='remindme', aliases=['reminder', 'remind'])
     async def remind_me(self, ctx, *, time: UserFriendlyTime):
         """Set a reminder."""
         message = time.arg
