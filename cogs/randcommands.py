@@ -51,7 +51,8 @@ class RandCommands(commands.Cog):
         message = await reply(ctx, "Testing...")
         latency = (perf_counter() - start) * 1000
         await message.edit(
-            content=f"Pong!\nLatency: {latency:.2f}ms\nAPI Latency: {self.bot.latency * 1000:.2f}ms"
+            content=f"{ctx.author.display_name}: Pong!\nLatency: {latency:.2f}ms\n"
+                    f"API Latency: {self.bot.latency * 1000:.2f}ms"
         )
 
     @commands.command(help="Gets a random quote from zenquotes.")
