@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import to_thread
 from io import BytesIO
+import random
 from random import choice, getrandbits, randint
 from time import perf_counter
 
@@ -116,6 +117,31 @@ class RandCommands(commands.Cog):
             return await ctx.send("Number must not be greater than 128.")
         generated = getrandbits(num)
         await ctx.send(f"{ctx.author.display_name}: `{generated:0{num}b}`")
+
+    @commands.command(help="Roll some dice.")
+    async def roll(self, ctx, options: str = None):
+        d6 = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
+        if not options:
+            await ctx.send(f"{ctx.author.display_name}: {random.choice(d6)}")
+        elif options == "rick":
+            await ctx.send(f"{ctx.author.display_name}: <https://youtu.be/dQw4w9WgXcQ>")
+        else:
+            to_return = []
+            for dice in options.split("+"):
+                try:
+                    count, sides = dice.split("d")
+                    if int(count) < 1 or int(count) > 10:
+                        return await ctx.send(f"{ctx.author.display_name}: Invalid roll count!")
+                    if int(sides) < 2 or int(sides) > 20:
+                        return await ctx.send(f"{ctx.author.display_name}: Invalid number of sides!")
+                    values = [random.randint(1, int(sides)) for _ in range(int(count))]
+                    values_ = ", ".join([str(_) for _ in values])
+                    to_return.append(f"**d{sides}** rolled **{count}** time(s): `{values_}` (**{sum(values)}**)")
+                except ValueError:
+                    return await ctx.send(f"{ctx.author.display_name}: Invalid dice format! I'm expecting XdT where X is "
+                                   f"the number of rolls and T is the number of sides.")
+            to_return = "\n".join(to_return)
+            await ctx.send(f"{ctx.author.display_name}: {to_return}")
 
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
