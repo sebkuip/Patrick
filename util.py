@@ -297,3 +297,23 @@ async def create_deletion_embed(
     embed.set_footer(text=f"Message ID: {message.id}")
     embed.timestamp = discord.utils.utcnow()
     return (embed, attachments)
+
+def get_all_command_names(bot: commands.Bot) -> typing.List[str]:
+    """Get all commands registered in the bot.
+
+    Args:
+        bot (commands.Bot): The bot instance.
+
+    Returns:
+        typing.List[str]: A list of all commands.
+    """
+    command_names = []
+    for command in bot.commands:
+        if isinstance(command, commands.Group):
+            command_names.extend([f"{command.name} {subcommand.name}" for subcommand in command.walk_commands()])
+        else:
+            command_names.append(command.name)
+        # Add aliases if they exist
+        if command.aliases:
+            command_names.extend([alias for alias in command.aliases])
+    return command_names
