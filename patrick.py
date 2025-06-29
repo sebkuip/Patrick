@@ -13,7 +13,7 @@ import database
 from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
                   process_custom_command, reformat_relay_chat, split_list,
-                  create_deletion_embed, reply)
+                  reply, create_automod_embed)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -224,26 +224,23 @@ class Patrick(commands.Bot):
             await message.delete()
             return
         if message.author.bot:
-            if find_automod_matches(self, message):
+            matches = find_automod_matches(self, message)
+            if matches:
                 logger.info(
                     f"Automod triggered for user {message.author.display_name} with message {message.content}"
                 )
                 channel = message.guild.get_channel(
-                    self.config["channels"]["audit_log"]
+                    self.config["channels"]["automod"]
                 )
-                embed, attachments = await create_deletion_embed(
-                    self.user,
-                    "Automod triggered",
-                    message,
+                embed = await create_automod_embed(
+                    message.content,
+                    matches,
                 )
                 await channel.send(
                     embed=embed,
-                    files=attachments,
                 )
-                await message.delete()
-                return
             # relay chat message need to be reformatted to be processed as a command
-            elif message.channel.id == self.config["channels"]["gamechat"]:
+            if message.channel.id == self.config["channels"]["gamechat"]:
                 message = reformat_relay_chat(self, message)
                 if message is None:
                     return

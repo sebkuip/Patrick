@@ -95,7 +95,7 @@ def load_automod_regexes(bot):
     bot.automod_regexes = [re.compile(regex) for regex in bot.config["automod_regexes"]]
 
 
-def find_automod_matches(bot, message: discord.Message) -> bool:
+def find_automod_matches(bot, message: discord.Message) -> list[str]:
     """Checks a message against the automod regexes to see if it matches any of them.
 
     Args:
@@ -103,12 +103,9 @@ def find_automod_matches(bot, message: discord.Message) -> bool:
         message (discord.Message): A discord message to check.
 
     Returns:
-        bool: True if the message matches any of the automod regexes, False otherwise.
+        list[str]: List of any matching regexes
     """
-    for regex in bot.automod_regexes:
-        if regex.search(message.content) is not None:
-            return True
-    return False
+    return [regex.pattern for regex in bot.automod_regexes if regex.search(message.content)]
 
 
 def is_staff():
@@ -296,7 +293,25 @@ async def create_deletion_embed(
     embed.add_field(name="Context", value=message.jump_url, inline=True)
     embed.set_footer(text=f"Message ID: {message.id}")
     embed.timestamp = discord.utils.utcnow()
-    return (embed, attachments)
+    return embed, attachments
+
+async def create_automod_embed(
+        message: str,
+        matches: list[str]
+) -> discord.Embed:
+    """Creates an embed for a deletion action.
+
+    Args:
+        message (str): The message that was flagged.
+        matches (list[str]): The list of regex matches.
+
+    Returns:
+        discord.Embed: An embed containing the deletion information.
+    """
+    embed = discord.Embed(description=message, color=discord.Color.red())
+    for match in matches:
+        embed.add_field(name="Matches", value=f"`{match}`", inline=False)
+    return embed
 
 def get_all_command_names(bot: commands.Bot) -> typing.List[str]:
     """Get all commands registered in the bot.

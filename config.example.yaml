@@ -1,8 +1,9 @@
 channels:
   welcome: 708732557453426728
   gamechat: 597852843785060357
-  notifications: 701824005954600960
-  audit_log: 1350873703872725154
+  notifications: 701813343530254346
+  audit_log: 1213536691902742618
+  automod: 1213536691902742618
 ingame_regex: '^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$'
 notifications:
   - name: "🇸urvival"
