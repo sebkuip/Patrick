@@ -1,6 +1,6 @@
 import logging
-from logging import handlers
 import sys
+from logging import handlers
 
 
 class StreamLogFormatter(logging.Formatter):

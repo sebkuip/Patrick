@@ -41,7 +41,7 @@ class PatrickHelp(commands.HelpCommand):
                 - The first dictionary contains the commands and their help message and signature.
                 - The second dictionary contains the custom commands and their messages.
         """
-        commands = {
+        commands_ = {
             command.name: (
                 command.signature,
                 command.help if command.help is not None else "",
@@ -49,7 +49,7 @@ class PatrickHelp(commands.HelpCommand):
             for command in self.context.bot.commands
         }
         custom_commands = self.context.bot.database.commands_cache
-        return (commands, custom_commands)
+        return commands_, custom_commands
 
     def format_table(
         self, commands_mapping: dict, custom_commands_mapping: dict
@@ -121,12 +121,12 @@ class PatrickHelp(commands.HelpCommand):
             user (discord.User): The user who invoked the help command.
 
         """
-        commands, custom_commands = await self.get_commands_mapping()
-        command_names = list(commands.keys())
+        commands_, custom_commands = await self.get_commands_mapping()
+        command_names = list(commands_.keys())
         command_names += list(custom_commands.keys())
         if len(command_names) <= 7:
             return await user.send(f"Available commands: {', '.join(command_names)}")
-        content = self.format_table(commands, custom_commands)
+        content = self.format_table(commands_, custom_commands)
         link = await self.generate_link(content)
         return await user.send(
             f"Available commands: {', '.join(list(command_names)[:7])} ...\nSnipped: <{link}>"
@@ -167,9 +167,9 @@ class PatrickHelp(commands.HelpCommand):
 class Patrick(commands.Bot):
     """The main class for the bot. It inherits from commands.Bot and is used to handle the bot's events and commands."""
 
-    def __init__(self, logger: logging.Logger, config: dict):
-        self.logger = logger
-        self.config = config
+    def __init__(self, logger_: logging.Logger, config_: dict):
+        self.logger = logger_
+        self.config = config_
         self.database = database.Connector()
         self.relay_regex = re.compile(
             self.config.get(
@@ -351,9 +351,9 @@ load_automod_regexes(patrick)
 @is_admin()
 async def sync(ctx):
     patrick.logger.info("Syncing slash commands")
-    commands = await patrick.tree.sync()
-    patrick.logger.info(f"Synced {len(commands)} slash commands")
-    await ctx.send(f"Synced {len(commands)} slash commands")
+    commands_ = await patrick.tree.sync()
+    patrick.logger.info(f"Synced {len(commands_)} slash commands")
+    await ctx.send(f"Synced {len(commands_)} slash commands")
 
 
 @patrick.command(help="Reloads all extensions and configs. Admin only.")
@@ -365,8 +365,8 @@ async def reload(ctx):
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
     m: discord.Message = await ctx.send("Reloading config...")
-    config = load_config()
-    patrick.config = config
+    config_ = load_config()
+    patrick.config = config_
     load_automod_regexes(patrick)
     await m.edit(content="Reloaded config")
     await m.delete(delay=5)

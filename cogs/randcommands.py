@@ -1,7 +1,7 @@
 import asyncio
+import random
 from asyncio import to_thread
 from io import BytesIO
-import random
 from random import choice, getrandbits, randint
 from time import perf_counter
 

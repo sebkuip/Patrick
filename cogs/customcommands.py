@@ -48,8 +48,8 @@ class CustomCommands(commands.Cog):
     @app_commands.command(description="Add a custom command to the bot.")
     @app_is_staff()
     async def add(self, interaction, key: str, *, message: str):
-        commands = get_all_command_names(self.bot)
-        if key in commands:
+        commands_ = get_all_command_names(self.bot)
+        if key in commands_:
             # The command is already a coded/built-in command. Don't allow adding it.
             await interaction.response.send_message(
                 f"Command `{key}` is already a built-in command. Please choose a different name.",
@@ -86,10 +86,10 @@ class CustomCommands(commands.Cog):
 
     @add_response.autocomplete("key")
     async def autocomplete_key(self, interaction, current: str):
-        commands = self.bot.database.commands_cache
+        commands_ = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)
-            for key in commands
+            for key in commands_
             if current.lower() in key.lower()
         ]
 
@@ -102,9 +102,9 @@ class CustomCommands(commands.Cog):
             )
             return
 
-        async def confirm_remove(interaction: discord.Interaction):
+        async def confirm_remove(interaction_: discord.Interaction):
             await self.bot.database.remove_command(key)
-            await interaction.response.send_message(
+            await interaction_.response.send_message(
                 f"Command `{key}` removed.", ephemeral=True
             )
 
@@ -116,10 +116,10 @@ class CustomCommands(commands.Cog):
 
     @remove.autocomplete("key")
     async def autocomplete_remove_key(self, interaction, current: str):
-        commands = self.bot.database.commands_cache
+        commands_ = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)
-            for key in commands
+            for key in commands_
             if current.lower() in key.lower()
         ]
 
@@ -141,9 +141,9 @@ class CustomCommands(commands.Cog):
             )
             return
 
-        async def confirm_remove_response(interaction: discord.Interaction):
+        async def confirm_remove_response(interaction_: discord.Interaction):
             await self.bot.database.remove_command_response(key, message)
-            await interaction.response.send_message(
+            await interaction_.response.send_message(
                 f"Response `{return_or_truncate(message, 20)}` removed from command `{key}`.",
                 ephemeral=True,
             )
@@ -156,10 +156,10 @@ class CustomCommands(commands.Cog):
 
     @remove_response.autocomplete("key")
     async def autocomplete_remove_response_key(self, interaction, current: str):
-        commands = self.bot.database.commands_cache
+        commands_ = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)
-            for key in commands
+            for key in commands_
             if current.lower() in key.lower()
         ]
 

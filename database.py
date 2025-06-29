@@ -147,7 +147,7 @@ class Connector:
             if key in self.commands_cache and response in self.commands_cache[key]:
                 self.commands_cache[key].remove(response)
             # If the command has no responses left, remove it from the cache and database
-            if self.commands_cache[key] == []:
+            if not self.commands_cache[key]:
                 del self.commands_cache[key]
                 query = "DELETE FROM command_keys WHERE key = ?"
                 await cur.execute(query, (key,))

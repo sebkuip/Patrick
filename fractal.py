@@ -2,8 +2,8 @@ import hashlib
 from math import ceil, cos, log, sin, sqrt
 from random import Random
 
-from numpy import array
 from PIL import Image
+from numpy import array
 
 
 class Complex:
@@ -67,7 +67,7 @@ def get_color(i: float, a: float, b: float, c: float) -> tuple:
     red = int(max(sin(i * a) * 255.0, 0.0))
     green = int(max(sin(i * b) * 255.0, 0.0))
     blue = int(max(sin(i * c) * 255.0, 0.0))
-    return (red, green, blue)
+    return red, green, blue
 
 
 def julia_pixel(coordinate: Complex, max_iterations: int, c: Complex) -> float:
