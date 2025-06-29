@@ -317,3 +317,11 @@ def get_all_command_names(bot: commands.Bot) -> typing.List[str]:
         if command.aliases:
             command_names.extend([alias for alias in command.aliases])
     return command_names
+
+async def reply(ctx, message=None, is_reply=False, **kwargs):
+    if message is None:
+        message = ""
+    if is_reply:
+        return await ctx.reply(f"{ctx.author.display_name}: {message}", **kwargs)
+    else:
+        return await ctx.send(f"{ctx.author.display_name}: {message}", **kwargs)

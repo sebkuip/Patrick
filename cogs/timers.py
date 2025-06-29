@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import discord
 from discord.ext import commands
 
-from util import is_discord_member
+from util import is_discord_member, reply
 
 
 def pretty_timedelta(delta):
@@ -34,7 +34,7 @@ class Timers(commands.Cog):
     @is_discord_member()
     async def start_timer(self, ctx, *, name: str):
         await self.bot.database.start_timer(ctx.author.id, name)
-        await ctx.send(f"{ctx.author.display_name}: Timer '{name}' started.")
+        await reply(ctx, f"Timer '{name}' started.")
 
     @timer.command(name="stop")
     @is_discord_member()
@@ -42,13 +42,11 @@ class Timers(commands.Cog):
         rows = await self.bot.database.stop_timer(ctx.author.id, name)
         if rows:
             row = rows[0]
-            await ctx.send(
-                f"{ctx.author.display_name}: Timer '{name}' stopped. Took {pretty_timedelta(datetime.now(timezone.utc) - row[0])}"
+            await reply(ctx,
+                f"Timer '{name}' stopped. Took {pretty_timedelta(datetime.now(timezone.utc) - row[0])}"
             )
         else:
-            await ctx.send(
-                f"{ctx.author.display_name}: No timer found with the name '{name}'."
-            )
+            await reply(ctx, f"No timer found with the name '{name}'.")
 
     @timer.command(name="list")
     @is_discord_member()
@@ -61,13 +59,11 @@ class Timers(commands.Cog):
                 [f"{row[0]}: <t:{int(row[1].timestamp())}:f>" for row in rows]
             )
             if member == ctx.author:
-                await ctx.send(f"{ctx.author.display_name}: Your timers:\n{timers}")
+                await reply(ctx, f"Your timers:\n{timers}")
             else:
-                await ctx.send(
-                    f"{ctx.author.display_name}: {member.display_name}'s timers:\n{timers}"
-                )
+                await reply(ctx, f"{member.display_name}'s timers:\n{timers}")
         else:
-            await ctx.send(f"{ctx.author.display_name}: No timers found.")
+            await reply(ctx, "No timers found.")
 
 
 async def setup(bot):

@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 from fractal import fractal
-from util import is_staff, baseconvert
+from util import is_staff, baseconvert, reply
 
 
 class RandCommands(commands.Cog):
@@ -29,9 +29,9 @@ class RandCommands(commands.Cog):
             to_base = ctx.command.extras["to_base"]
             try:
                 converted = baseconvert(number, bases[from_base], bases[to_base])
-                await ctx.send(f"{ctx.author.display_name}: {converted}")
+                await reply(ctx, converted)
             except ValueError as e:
-                await ctx.send(f"{ctx.author.display_name}: Invalid input number for base {from_base}")
+                await reply(ctx, f"Invalid input number for base {from_base}")
 
         for from_base, from_value in bases.items():
             for to_base, to_value in bases.items():
@@ -48,7 +48,7 @@ class RandCommands(commands.Cog):
     @commands.command(help="Performs a ping test and shows results.")
     async def ping(self, ctx):
         start = perf_counter()
-        message = await ctx.send("Testing...")
+        message = await reply(ctx, "Testing...")
         latency = (perf_counter() - start) * 1000
         await message.edit(
             content=f"Pong!\nLatency: {latency:.2f}ms\nAPI Latency: {self.bot.latency * 1000:.2f}ms"
@@ -61,7 +61,7 @@ class RandCommands(commands.Cog):
         ) as response:
             if response.status == 200:
                 data = await response.json()
-                await ctx.send(f"\"{data[0]['q']}\" - {data[0]['a']}")
+                await reply(ctx, f"\"{data[0]['q']}\" - {data[0]['a']}")
 
     async def get_xkcd_data(self, number: int):
         async with self.bot.aiosession.get(
@@ -96,52 +96,50 @@ class RandCommands(commands.Cog):
                     randnum = randint(1, data["num"])
                     data = await self.get_xkcd_data(randnum)
                     if data is None:
-                        return await ctx.send(
-                            "An error occurred while fetching the comic."
-                        )
-                    await ctx.send(embed=self.xkcd_embed(data))
+                        return await reply(ctx, "An error occurred while fetching the comic.")
+                    await reply(ctx, embed=self.xkcd_embed(data))
 
         else:
             data = await self.get_xkcd_data(number)
             if data is None:
-                return await ctx.send("An error occurred while fetching the comic.")
-            await ctx.send(embed=self.xkcd_embed(data))
+                return await reply(ctx, "An error occurred while fetching the comic.")
+            await reply(ctx, embed=self.xkcd_embed(data))
 
     @commands.command(
         help="Generates a random binary number with the given amount of bits."
     )
     async def rng(self, ctx, num: int):
         if num < 1:
-            return await ctx.send("Number must be greater than 0.")
+            return await reply(ctx, "Number must be greater than 0.")
         if num > 128:
-            return await ctx.send("Number must not be greater than 128.")
+            return await reply(ctx, "Number must not be greater than 128.")
         generated = getrandbits(num)
-        await ctx.send(f"{ctx.author.display_name}: `{generated:0{num}b}`")
+        await reply(ctx, f"`{generated:0{num}b}`")
 
     @commands.command(help="Roll some dice.")
     async def roll(self, ctx, options: str = None):
         d6 = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
         if not options:
-            await ctx.send(f"{ctx.author.display_name}: {random.choice(d6)}")
+            await reply(ctx, random.choice(d6))
         elif options == "rick":
-            await ctx.send(f"{ctx.author.display_name}: <https://youtu.be/dQw4w9WgXcQ>")
+            await reply(ctx, "<https://youtu.be/dQw4w9WgXcQ>")
         else:
             to_return = []
             for dice in options.split("+"):
                 try:
                     count, sides = dice.split("d")
                     if int(count) < 1 or int(count) > 10:
-                        return await ctx.send(f"{ctx.author.display_name}: Invalid roll count!")
+                        return await reply(ctx, "Invalid roll count!")
                     if int(sides) < 2 or int(sides) > 20:
-                        return await ctx.send(f"{ctx.author.display_name}: Invalid number of sides!")
+                        return await reply(ctx, "Invalid number of sides!")
                     values = [random.randint(1, int(sides)) for _ in range(int(count))]
                     values_ = ", ".join([str(_) for _ in values])
                     to_return.append(f"**d{sides}** rolled **{count}** time(s): `{values_}` (**{sum(values)}**)")
                 except ValueError:
-                    return await ctx.send(f"{ctx.author.display_name}: Invalid dice format! I'm expecting XdT where X is "
+                    return await reply(ctx, "Invalid dice format! I'm expecting XdT where X is "
                                    f"the number of rolls and T is the number of sides.")
             to_return = "\n".join(to_return)
-            await ctx.send(f"{ctx.author.display_name}: {to_return}")
+            await reply(ctx, to_return)
 
     @commands.command(help="Get someone's minecraft UUID.")
     async def uuid(self, ctx, username: str):
@@ -162,20 +160,20 @@ class RandCommands(commands.Cog):
                     + "-"
                     + raw_uuid[20:]
                 )
-                await ctx.send(f"{ctx.author.display_name}: `{uuid}`")
+                await reply(ctx, f"`{uuid}`")
             else:
-                await ctx.send("Invalid username provided")
+                await reply(ctx, "Invalid username provided")
 
     @commands.command(help="Slap someone.")
     @commands.guild_only()
     async def slap(self, ctx, user: discord.Member):
         slap_role = discord.utils.get(ctx.guild.roles, name="Slapped")
         if slap_role is None:
-            return await ctx.send("No slapped rank :(")
+            return await reply(ctx, "No slapped rank :(")
         if slap_role in user.roles:
-            return await ctx.send("User is already slapped.")
+            return await reply(ctx, "User is already slapped.")
         await user.add_roles(slap_role)
-        await ctx.send(f"{user.mention} got slapped by {ctx.author.mention}.")
+        await reply(ctx, f"slapped {user.mention}")
         await asyncio.sleep(3_600)  # 1 hour
         await user.remove_roles(slap_role)
 
@@ -185,15 +183,15 @@ class RandCommands(commands.Cog):
     async def pikl(self, ctx, user: discord.Member):
         pikl_role = discord.utils.get(ctx.guild.roles, name="pikl")
         if pikl_role is None:
-            return await ctx.send("No pikl rank :(")
+            return await reply(ctx, "No pikl rank :(")
         await user.add_roles(pikl_role)
-        await ctx.send(f"{user.mention} got pikl'd.")
+        await reply(ctx, f"{user.mention} got pikl'd.")
         await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
     @commands.command(help="Googles something.")
     async def google(self, ctx, *, query):
-        await ctx.send(f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
+        await reply(ctx, f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
 
     def prime_factors(self, n: int) -> list:
         i = 2
@@ -211,7 +209,7 @@ class RandCommands(commands.Cog):
     @commands.command(help="Get the prime factors of a number.")
     async def factorize(self, ctx, number: int):
         if number < 1:
-            return await ctx.send("Number must be greater than 0.")
+            return await reply(ctx, "Number must be greater than 0.")
         pow_map = {"2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"}
         try:
             factors = await asyncio.wait_for(
@@ -219,7 +217,7 @@ class RandCommands(commands.Cog):
                 timeout=5.0
             )
         except asyncio.TimeoutError:
-            return await ctx.send(f"{ctx.author.display_name}: Calculation took too long, terminating.")
+            return await reply(ctx, "Calculation took too long, terminating.")
         powered_factors = []
         for factor in set(factors):
             count = factors.count(factor)
@@ -229,19 +227,15 @@ class RandCommands(commands.Cog):
                 )
             else:
                 powered_factors.append(f"{factor}")
-        await ctx.send(
-            f"{ctx.author.display_name}: {number} = {' * '.join(powered_factors)}"
-        )
+        await reply(ctx, f"{number} = {' * '.join(powered_factors)}")
 
     @commands.command(help="Get the aeiou version of your text.", aliases=["tts"])
     @commands.cooldown(15, 60, commands.BucketType.default)
     async def aeiou(self, ctx, *, text):
         if len(text) > 1024:
-            return await ctx.send(
-                "Text is too long. Maximum length is 1024 characters."
-            )
+            return await reply(ctx, "Text is too long. Maximum length is 1024 characters.")
         if len(text) < 1:
-            return await ctx.send("Text is too short. Minimum length is 1 character.")
+            return await reply(ctx, "Text is too short. Minimum length is 1 character.")
         user_agent = "Patrick discord bot | Python 3 | sebkuip | https://github.com/OpenRedstoneEngineers/Patrick/"
         headers = {
             "User-Agent": user_agent,
@@ -252,9 +246,9 @@ class RandCommands(commands.Cog):
             if response.status == 200:
                 audio = BytesIO(await response.read())
                 file = discord.File(audio, filename="aeiou.mp3")
-                await ctx.send(f"{ctx.author.display_name}: {text}", file=file)
+                await reply(ctx, text, file=file)
             else:
-                await ctx.send("An error occurred while fetching the aeiou text.")
+                await reply(ctx, "An error occurred while fetching the aeiou text.")
 
     @commands.command(help="Generate a fractal image using a given seed.")
     @is_staff()
@@ -273,7 +267,7 @@ class RandCommands(commands.Cog):
             file = discord.File(fp=image_binary, filename="image.png")
             embed = discord.Embed()
             embed.set_image(url="attachment://image.png")
-            await ctx.send(file=file, embed=embed)
+            await reply(ctx, seed, file=file, embed=embed)
 
         end = perf_counter()
         self.bot.logger.info(
@@ -285,7 +279,7 @@ class RandCommands(commands.Cog):
         if target is None:
             target = ctx.author.display_name
         message = choice(self.bot.config["insults"])
-        await ctx.send(message.format(user=target))
+        await reply(ctx, message.format(user=target))
 
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))

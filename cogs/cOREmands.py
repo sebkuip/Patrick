@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff, is_staff, create_deletion_embed
+from util import app_is_staff, is_staff, create_deletion_embed, reply
 
 
 class COREmands(commands.Cog):
@@ -24,22 +24,20 @@ class COREmands(commands.Cog):
     )
     async def apply(self, ctx, *, name: str = None):
         if name is None:
-            return await ctx.send('Specify "student", "builder", or "engineer".')
+            return await reply(ctx, 'Specify "student", "builder", or "engineer".')
         match name:
             case "student":
-                await ctx.send(
-                    "To apply for student, hop onto `mc.openredstone.org` and run `/apply`"
-                )
+                await reply(ctx, "To apply for student, hop onto `mc.openredstone.org` and run `/apply`")
             case "builder":
-                await ctx.send(
+                await reply(ctx,
                     "To apply for builder, follow the steps outlined here: <https://discourse.openredstone.org/builder>"
                 )
             case "engineer":
-                await ctx.send(
+                await reply(ctx,
                     "To apply for engineer, follow the steps outlined here: <https://discourse.openredstone.org/engineer>"
                 )
             case _:
-                await ctx.send('Specify "student", "builder", or "engineer".')
+                await reply(ctx, 'Specify "student", "builder", or "engineer".')
 
     @commands.command(help="Give the trusted role to someone.")
     @is_staff()
@@ -47,14 +45,10 @@ class COREmands(commands.Cog):
         role = ctx.guild.get_role(self.bot.config["roles"]["trusted"])
         if role in member.roles:
             await member.remove_roles(role)
-            await ctx.send(
-                f"{ctx.author.display_name}: {member.display_name} is no longer Trusted."
-            )
+            await reply(ctx, f"{member.display_name} is no longer Trusted.")
         else:
             await member.add_roles(role)
-            await ctx.send(
-                f"{ctx.author.display_name}: {member.display_name} is now Trusted."
-            )
+            await reply(ctx, f"{member.display_name} is now Trusted.")
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):

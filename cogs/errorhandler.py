@@ -2,7 +2,7 @@ import traceback
 
 from discord.ext import commands
 
-from util import NoRelayException
+from util import NoRelayException, reply
 
 
 class ErrorHandler(commands.Cog):
@@ -13,7 +13,7 @@ class ErrorHandler(commands.Cog):
     async def on_command_error(self, ctx, error):
 
         async def respond(message):
-            await ctx.send(f"{ctx.author.display_name}: {message}")
+            await reply(ctx, f"{message}")
 
         if hasattr(ctx.command, "on_error"):
             return

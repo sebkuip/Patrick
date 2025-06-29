@@ -13,7 +13,7 @@ import database
 from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
                   process_custom_command, reformat_relay_chat, split_list,
-                  create_deletion_embed)
+                  create_deletion_embed, reply)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -271,7 +271,7 @@ class Patrick(commands.Bot):
                 self.logger.info(
                     f"User '{ctx.author.display_name}' attempted to run an unrecognized command: '{ctx.message.content[1:]}'"
                 )
-                return await ctx.send(f"{ctx.author.display_name}: Unrecognized command :'(")
+                return await reply(ctx, "Unrecognized command :'(")
 
         if ctx.valid:
             # The context is valid when a command and prefix was found.
@@ -353,18 +353,18 @@ async def sync(ctx):
     patrick.logger.info("Syncing slash commands")
     commands_ = await patrick.tree.sync()
     patrick.logger.info(f"Synced {len(commands_)} slash commands")
-    await ctx.send(f"Synced {len(commands_)} slash commands")
+    await reply(ctx, f"Synced {len(commands_)} slash commands")
 
 
 @patrick.command(help="Reloads all extensions and configs. Admin only.")
 @is_admin()
 async def reload(ctx):
     await ctx.message.delete(delay=5)
-    m: discord.Message = await ctx.send("Reloading extensions...")
+    m: discord.Message = await reply(ctx, "Reloading extensions...")
     await patrick.reload_extensions()
     await m.edit(content="Reloaded extensions")
     await m.delete(delay=5)
-    m: discord.Message = await ctx.send("Reloading config...")
+    m: discord.Message = await reply(ctx, "Reloading config...")
     config_ = load_config()
     patrick.config = config_
     load_automod_regexes(patrick)
