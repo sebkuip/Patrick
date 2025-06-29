@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util import app_is_staff, return_or_truncate
+from util import app_is_staff, return_or_truncate, get_all_command_names
 
 
 class ConfirmView(discord.ui.View):
@@ -48,8 +48,16 @@ class CustomCommands(commands.Cog):
     @app_commands.command(description="Add a custom command to the bot.")
     @app_is_staff()
     async def add(self, interaction, key: str, *, message: str):
-        commands = self.bot.database.commands_cache
+        commands = get_all_command_names(self.bot)
         if key in commands:
+            # The command is already a coded/built-in command. Don't allow adding it.
+            await interaction.response.send_message(
+                f"Command `{key}` is already a built-in command. Please choose a different name.",
+                ephemeral=True,
+            )
+            return
+        if key in self.bot.database.commands_cache:
+            # The command already exists as a custom command. Don't allow adding it again.
             await interaction.response.send_message(
                 f"Command `{key}` already exists. Use `addresponse` to add another response.",
                 ephemeral=True,
@@ -107,7 +115,7 @@ class CustomCommands(commands.Cog):
         )
 
     @remove.autocomplete("key")
-    async def autocomplete_key(self, interaction, current: str):
+    async def autocomplete_remove_key(self, interaction, current: str):
         commands = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)
@@ -147,7 +155,7 @@ class CustomCommands(commands.Cog):
         )
 
     @remove_response.autocomplete("key")
-    async def autocomplete_key(self, interaction, current: str):
+    async def autocomplete_remove_response_key(self, interaction, current: str):
         commands = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)

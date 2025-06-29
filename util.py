@@ -226,3 +226,94 @@ def split_list(a, n):
     """
     k, m = divmod(len(a), n)
     return list(a[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))
+
+def baseconvert(number: str, base_from: int, base_to: int) -> str:
+    """Convert a number from one base to another.
+
+    Args:
+        number (int): The number to convert.
+        base_from (int): The base of the input number.
+        base_to (int): The base to convert the number to.
+
+    Returns:
+        str: The converted number as a string.
+    """
+    characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/"
+    if base_from > len(characters) or base_to > len(characters):
+        raise ValueError(f"Base must be between 2 and {len(characters)}.")
+    if base_from < 2 or base_to < 2:
+        raise ValueError("Base must be at least 2.")
+    
+    # Convert from base_from to decimal
+    decimal_number = int(str(number), base_from)
+    
+    # Convert from decimal to base_to
+    if decimal_number == 0:
+        return "0"
+    
+    digits = []
+    while decimal_number > 0:
+        digits.append(characters[int(decimal_number % base_to)])
+        decimal_number //= base_to
+    
+    return ''.join(str(x) for x in digits[::-1])  # Reverse the list and join as string
+
+async def create_deletion_embed(
+        staff: typing.Union[discord.Member, discord.User],
+        reason: str,
+        message: discord.Message,
+) -> typing.Tuple[discord.Embed, typing.List[discord.File]]:
+    """Creates an embed for a deletion action.
+
+    Args:
+        staff (discord.Member): The staff member who performed the deletion.
+        reason (str): The reason for the deletion.
+        message (discord.Message): The message that was deleted.
+
+    Returns:
+        discord.Embed: An embed containing the deletion information.
+    """
+    embed = discord.Embed(
+        title="ORE Moderation Services",
+        color=discord.Color.red(),
+    )
+    embed.set_thumbnail(url="https://i.imgflip.com/44o9ir.png")
+    embed.add_field(name="Staff Member", value=staff.mention, inline=False)
+    embed.add_field(name="User", value=message.author.mention, inline=True)
+    embed.add_field(name="Display Name", value=message.author.display_name, inline=True)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    if len(message.message_snapshots) > 0:
+        embed.add_field(
+            name="Forwarded Message Content",
+            value=message.message_snapshots[0].content or "No content",
+            inline=False,
+        )
+        attachments = [await attachment.to_file() for attachment in message.message_snapshots[0].attachments]
+    else:
+        embed.add_field(name="Message Content", value=message.content or "No content", inline=False)
+        attachments = [await attachment.to_file() for attachment in message.attachments]
+    embed.add_field(name="Channel", value=message.channel.jump_url, inline=True)
+    embed.add_field(name="Context", value=message.jump_url, inline=True)
+    embed.set_footer(text=f"Message ID: {message.id}")
+    embed.timestamp = discord.utils.utcnow()
+    return (embed, attachments)
+
+def get_all_command_names(bot: commands.Bot) -> typing.List[str]:
+    """Get all commands registered in the bot.
+
+    Args:
+        bot (commands.Bot): The bot instance.
+
+    Returns:
+        typing.List[str]: A list of all commands.
+    """
+    command_names = []
+    for command in bot.commands:
+        if isinstance(command, commands.Group):
+            command_names.extend([f"{command.name} {subcommand.name}" for subcommand in command.walk_commands()])
+        else:
+            command_names.append(command.name)
+        # Add aliases if they exist
+        if command.aliases:
+            command_names.extend([alias for alias in command.aliases])
+    return command_names
