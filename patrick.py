@@ -12,7 +12,8 @@ from dotenv import load_dotenv
 import database
 from logger import StreamLogFormatter, setup_logger
 from util import (find_automod_matches, is_admin, load_automod_regexes,
-                  process_custom_command, reformat_relay_chat, split_list)
+                  process_custom_command, reformat_relay_chat, split_list,
+                  create_deletion_embed)
 
 load_dotenv(Path(__file__).parent / ".env")
 TOKEN: str = getenv("TOKEN")
@@ -84,9 +85,7 @@ class PatrickHelp(commands.HelpCommand):
             return text
 
         custom_commands_split = split_list(list(custom_commands_mapping.keys()), 3)
-        print(custom_commands_mapping)
-        print(custom_commands_split)
-        maxlens = [max(len(key) for key in column) for column in custom_commands_split]
+        maxlens = [max((len(key) for key in column), default=5) for column in custom_commands_split]
 
         text += "\n\nCustom commands:\n"
         text += f"|-{''.ljust(maxlens[0], '-')}-|-{''.ljust(maxlens[1], '-')}-|-{''.ljust(maxlens[2], '-')}-|\n"
@@ -104,11 +103,14 @@ class PatrickHelp(commands.HelpCommand):
         Returns:
             str: The link to the uploaded content.
         """
-        data = {"content": content, "title": "ORE Patrick", "expiry_days": 1}
         async with self.context.bot.aiosession.post(
-            "https://dpaste.com/api/v2/", data=data
+            "https://hastebin.cc/documents", data=content.encode("utf-8")
         ) as response:
-            return response.headers["Location"]
+            if response.status == 200:
+                data = await response.json()
+                return f"https://hastebin.cc/{data['key']}"
+            else:
+                raise Exception(f"Failed to post to Hastebin: {response.status}")
 
     async def send_help_message(self, user: discord.User) -> None:
         """This is the main function that handles the help command.
@@ -214,10 +216,29 @@ class Patrick(commands.Bot):
         """
         if message.author == self.user:
             return
+        if message.content.startswith("/link"):
+            # If the message starts with /link, it's probably someone trying to link their account but not selecting the command from the popup.
+            await message.channel.send(
+                f"{message.author.display_name}: Please use the `/link` command from the command popup as you type. Do not type it out manually."
+            )
+            await message.delete()
+            return
         if message.author.bot:
             if find_automod_matches(self, message):
                 logger.info(
                     f"Automod triggered for user {message.author.display_name} with message {message.content}"
+                )
+                channel = message.guild.get_channel(
+                    self.config["channels"]["audit_log"]
+                )
+                embed, attachments = await create_deletion_embed(
+                    self.user,
+                    "Automod triggered",
+                    message,
+                )
+                await channel.send(
+                    embed=embed,
+                    files=attachments,
                 )
                 await message.delete()
                 return
