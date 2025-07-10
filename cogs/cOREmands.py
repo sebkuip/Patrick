@@ -1,6 +1,5 @@
 from random import choice
 import discord
-from discord import app_commands
 from discord.ext import commands
 import typing
 
@@ -11,14 +10,6 @@ from timeutil import UserFriendlyTime
 class COREmands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # Discord.py doesn't support using the @app_commands.context_menu decorator in Cogs.
-        # This is the recommended workaround.
-        # See: https://github.com/Rapptz/discord.py/issues/7823#issuecomment-1086830458
-        ctx_menu = app_commands.ContextMenu(
-            name="Delete message",
-            callback=self.delete_message,
-        )
-        self.bot.tree.add_command(ctx_menu)
 
     @commands.command(
         help="Shows instructions how to apply for student, builder, or engineer."
