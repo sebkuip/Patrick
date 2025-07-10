@@ -1,7 +1,6 @@
 from random import choice
 import discord
 from discord.ext import commands
-import typing
 
 from util import app_is_staff, is_staff, create_deletion_embed, reply
 from timeutil import UserFriendlyTime

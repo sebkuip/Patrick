@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
+import typing
 
 from util import is_staff, app_is_staff, create_deletion_embed
 from timeutil import UserFriendlyTime
