@@ -190,7 +190,7 @@ class RandCommands(commands.Cog):
         await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
-    @commands.command(help="Googles something.")
+    @commands.command(help="Googles something.", aliases=["lmgtfy"])
     async def google(self, ctx, *, query):
         await reply(ctx, f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
 
