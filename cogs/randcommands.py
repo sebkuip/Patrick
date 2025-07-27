@@ -45,7 +45,7 @@ class RandCommands(commands.Cog):
                     )
                 )
 
-    @commands.command(help="Performs a ping test and shows results.")
+    @commands.command(help="Performs a ping test and shows results.", aliases=["pingtest"])
     async def ping(self, ctx):
         start = perf_counter()
         message = await reply(ctx, "Testing...")
@@ -55,7 +55,7 @@ class RandCommands(commands.Cog):
                     f"API Latency: {self.bot.latency * 1000:.2f}ms"
         )
 
-    @commands.command(help="Gets a random quote from zenquotes.")
+    @commands.command(help="Gets a random quote from zenquotes.", aliases=["zenquote"])
     async def quote(self, ctx):
         async with self.bot.aiosession.get(
             "https://zenquotes.io/api/random/"
@@ -107,7 +107,7 @@ class RandCommands(commands.Cog):
             await reply(ctx, embed=self.xkcd_embed(data))
 
     @commands.command(
-        help="Generates a random binary number with the given amount of bits."
+        help="Generates a random binary number with the given amount of bits.", aliases=["random"]
     )
     async def rng(self, ctx, num: int):
         if num < 1:
@@ -117,7 +117,7 @@ class RandCommands(commands.Cog):
         generated = getrandbits(num)
         await reply(ctx, f"`{generated:0{num}b}`")
 
-    @commands.command(help="Roll some dice.")
+    @commands.command(help="Roll some dice.", aliases=["dice"])
     async def roll(self, ctx, options: str = None):
         d6 = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
         if not options:
@@ -190,7 +190,7 @@ class RandCommands(commands.Cog):
         await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
-    @commands.command(help="Googles something.")
+    @commands.command(help="Googles something.", aliases=["lmgtfy"])
     async def google(self, ctx, *, query):
         await reply(ctx, f"<https://www.google.com/search?q={query.replace(' ', '+')}>")
 
