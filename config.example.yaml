@@ -4,6 +4,9 @@ channels:
   notifications: 701813343530254346
   audit_log: 1213536691902742618
   automod: 1213536691902742618
+autosub_forums:
+  - 1026904572293287936
+  - 1022293381705125968
 ingame_regex: '^`[A-Za-z]+` \*\*([A-Za-z0-9_\\]+)\*\*: *(.*)$'
 notifications:
   - name: "🇸urvival"

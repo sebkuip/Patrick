@@ -19,6 +19,13 @@ class COREmands(commands.Cog):
         )
         self.bot.tree.add_command(ctx_menu)
 
+    @commands.Cog.listener()
+    async def on_thread_create(self, thread: discord.Thread):
+        if thread.parent_id in self.bot.config["autosub_forums"]:
+            role = await thread.guild.fetch_role(self.bot.config["roles"]["staff"])
+            for member in role.members:
+                await thread.add_user(member)
+
     @commands.command(
         help="Shows instructions how to apply for student, builder, or engineer."
     )
