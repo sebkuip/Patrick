@@ -21,8 +21,6 @@ Patrick uses the following software:
 6. Go to the "OAuth2" tab, select "bot" and "applications.commands" under "Scopes", and then select the permissions you want to grant the bot. For ease of testing, you can select "Administrator" to give it all permissions. However, for production use, you should only select the permissions that are necessary for the bot to function.
 7. Copy the generated URL at the bottom and paste it into your browser to invite the bot to your server.
 
-## Running through python directly
-
 ### Getting the bot files
 
 1. Clone the repository:
@@ -65,7 +63,7 @@ Patrick uses the following software:
 
 If you are using any python environment manager, you can use the equivalent command to install the dependencies from the `requirements.txt` file.
 
-### Running Patrick
+## Running through python directly
 
 To run Patrick, you can use the following command, assuming you are in the root directory of the project and have set up your environment correctly:
 
