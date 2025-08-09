@@ -7,7 +7,7 @@ Please first consult the README.md for detailed information on how to set up Pat
 
 Commands are the primary way to interact with Patrick. They allow you to perform various actions. Most commands use the old text based system with prefix `,`. Some commands may also use discord's built in slash-command system. These commands are denoted by an asterisk `*` before their name. Some commands may be discord's "context command" system, for which you need to right click a user or message to see this command and use it. These are denoted by an ampersand `&` before their name.
 
-## No category
+### No category
 
 - sync: Admin only command. Forces an app commands sync with discord. Required for proper functioning of slash and context commands.
 - reload: Admin only command. Reloads the bot's configuration and commands. Commands in this category are excluded due to technical reasons.
