@@ -237,6 +237,7 @@ class Patrick(commands.Bot):
                     matches,
                 )
                 await channel.send(
+                    f"Flagged a message {message.jump_url}",
                     embed=embed,
                 )
             # relay chat message need to be reformatted to be processed as a command
