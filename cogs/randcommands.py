@@ -174,7 +174,7 @@ class RandCommands(commands.Cog):
         if slap_role in user.roles:
             return await reply(ctx, "User is already slapped.")
         await user.add_roles(slap_role)
-        await reply(ctx, f"slapped {user.mention}")
+                await reply(ctx, f"slapped {user.mention}", False, True)
         await asyncio.sleep(3_600)  # 1 hour
         await user.remove_roles(slap_role)
 
@@ -186,7 +186,7 @@ class RandCommands(commands.Cog):
         if pikl_role is None:
             return await reply(ctx, "No pikl rank :(")
         await user.add_roles(pikl_role)
-        await reply(ctx, f"{user.mention} got pikl'd.")
+        await reply(ctx, f"{user.mention} got pikl'd.", False, True)
         await asyncio.sleep(120)
         await user.remove_roles(pikl_role)
 
