@@ -67,6 +67,9 @@ class Connector:
             )
             await self.connection.commit()
 
+    async def close(self):
+        await self.connection.close()
+
     async def populate_cache(self):
         """If not connected, connect to the database and populate the commands_cache dictionary with the keys and responses from the database.
         The keys are the command names, and the value is a list of responses.
