@@ -47,7 +47,6 @@ Commands are the primary way to interact with Patrick. They allow you to perform
 - remindme: set a reminder for a specific time and date and given text
 - reminders: see your reminders
 
-
 ### Timers
 
 - timer: Base command. Doesn't do anything.
