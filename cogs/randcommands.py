@@ -174,7 +174,7 @@ class RandCommands(commands.Cog):
         if slap_role in user.roles:
             return await reply(ctx, "User is already slapped.")
         await user.add_roles(slap_role)
-                await reply(ctx, f"slapped {user.mention}", False, True)
+        await reply(ctx, f"slapped {user.mention}", False, True)
         await asyncio.sleep(3_600)  # 1 hour
         await user.remove_roles(slap_role)
 
