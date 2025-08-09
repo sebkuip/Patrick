@@ -89,7 +89,7 @@ class CustomCommands(commands.Cog):
         commands_ = self.bot.database.commands_cache
         return [
             app_commands.Choice(name=key, value=key)
-            for key in commands_
+            for key in commands_[:25]
             if current.lower() in key.lower()
         ]
 
