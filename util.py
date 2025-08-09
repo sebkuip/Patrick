@@ -337,5 +337,4 @@ async def reply(ctx, message=None, is_reply=False, is_silent=False, **kwargs):
     if message is None:
         message = ""
     target = ctx.reply if is_reply else ctx.send
-    prefix = "@silent " if is_silent else ""
-    return await target(f"{prefix}{ctx.author.display_name}: {message}", **kwargs)
+    return await target(f"{ctx.author.display_name}: {message}", silent=is_silent, **kwargs)
