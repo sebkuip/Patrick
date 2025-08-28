@@ -292,7 +292,7 @@ class RandCommands(commands.Cog):
         try:
             output = await asyncio.wait_for(
                 asyncio.to_thread(process_brainfuck, code, input),
-                timeout=5.0
+                timeout=10.0
             )
         except asyncio.TimeoutError:
             return await reply(ctx, "Processing took too long, terminating.")
