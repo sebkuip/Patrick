@@ -39,7 +39,10 @@ def process_brainfuck(code: str, input: str):
     while memory.counter < len(code):
         match code[memory.counter]:
             case ">":
-                memory.pointer += 1
+                if memory.pointer < 29999:
+                    memory.pointer += 1
+                else:
+                    return f"error: pointer moved above 29999 at character {memory.counter}"
             case "<":
                 if memory.pointer > 0:
                     memory.pointer -= 1
