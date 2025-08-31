@@ -5,6 +5,12 @@ from datetime import datetime, timedelta
 from util import is_discord_member
 from timeutil import UserFriendlyTime
 
+
+def timestamp(dt, *, format="R") -> str:
+    unix = int(dt.timestamp())
+    return f"<t:{unix}:{format}>"
+
+
 class Reminders(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -21,7 +27,7 @@ class Reminders(commands.Cog):
             message=message,
             timestamp=time.dt
         )
-        await ctx.reply(f"{ctx.author.mention}: I will remind you at {timestamp(time.dt.strftime('%Y-%m-%d %H:%M:%S'))} UTC with the message: {message}")
+        await ctx.reply(f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC ({timestamp(time.dt)}) with the message: {message}")
 
     @is_discord_member()
     @commands.command(name='reminders', aliases=['myreminders'])
@@ -30,11 +36,12 @@ class Reminders(commands.Cog):
         reminders = await self.bot.database.get_reminders(ctx.author.id)
         if not reminders:
             return await ctx.reply(f"{ctx.author.display_name}: You have no reminders set.")
+        
         elif len(reminders) < 25:
             embed = discord.Embed(title=f"{ctx.author.display_name}'s Reminders", color=discord.Color.blue())
-            for message, _, time in reminders:
+            for message, _, timestamp in reminders:
                 embed.add_field(
-                    name=f"Reminder at {timestamp(time.strftime('%Y-%m-%d %H:%M:%S'))}",
+                    name=f"Reminder at {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
                     value=f"Message: {message}",
                     inline=False
                 )
