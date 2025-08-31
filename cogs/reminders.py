@@ -21,7 +21,7 @@ class Reminders(commands.Cog):
             message=message,
             timestamp=time.dt
         )
-        await ctx.reply(f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC with the message: {message}")
+        await ctx.reply(f"{ctx.author.mention}: I will remind you at {timestamp(time.dt.strftime('%Y-%m-%d %H:%M:%S'))} UTC with the message: {message}")
 
     @is_discord_member()
     @commands.command(name='reminders', aliases=['myreminders'])
@@ -32,9 +32,9 @@ class Reminders(commands.Cog):
             return await ctx.reply(f"{ctx.author.display_name}: You have no reminders set.")
         elif len(reminders) < 25:
             embed = discord.Embed(title=f"{ctx.author.display_name}'s Reminders", color=discord.Color.blue())
-            for message, _, timestamp in reminders:
+            for message, _, time in reminders:
                 embed.add_field(
-                    name=f"Reminder at {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
+                    name=f"Reminder at {timestamp(time.strftime('%Y-%m-%d %H:%M:%S'))}",
                     value=f"Message: {message}",
                     inline=False
                 )
