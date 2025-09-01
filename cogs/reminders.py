@@ -27,7 +27,10 @@ class Reminders(commands.Cog):
             message=message,
             timestamp=time.dt
         )
-        await ctx.reply(f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC ({timestamp(time.dt)}) with the message: {message}")
+        msg = f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC ({timestamp(time.dt)}) "
+        if message:
+            msg += f"with the message: {message}"
+        await ctx.reply(msg)
 
     @is_discord_member()
     @commands.command(name='reminders', aliases=['myreminders'])
