@@ -27,6 +27,7 @@ class Reminders(commands.Cog):
             message=message,
             timestamp=time.dt
         )
+
         msg = f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC ({timestamp(time.dt)}) "
         if message:
             msg += f"with the message: {message}"
@@ -45,7 +46,7 @@ class Reminders(commands.Cog):
             for message, _, timestamp in reminders:
                 embed.add_field(
                     name=f"Reminder at {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
-                    value=f"Message: {message}",
+                    value=f"Message: {message or "-"}",
                     inline=False
                 )
             await ctx.reply(embed=embed)
@@ -58,7 +59,7 @@ class Reminders(commands.Cog):
             user_id, channel_id, message = reminder
             channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
             try:
-                await channel.send(f"<@{user_id}>: {message}")
+                await channel.send(f"<@{user_id}>{f": {message}" if message else ""}")
             except discord.Forbidden:
                 # If the bot cannot send messages to the channel, skip it
                 continue
