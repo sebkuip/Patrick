@@ -5,6 +5,12 @@ from datetime import datetime, timedelta
 from util import is_discord_member
 from timeutil import UserFriendlyTime
 
+
+def timestamp(dt, *, format="R") -> str:
+    unix = int(dt.timestamp())
+    return f"<t:{unix}:{format}>"
+
+
 class Reminders(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -21,7 +27,8 @@ class Reminders(commands.Cog):
             message=message,
             timestamp=time.dt
         )
-        msg = f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC"
+
+        msg = f"{ctx.author.mention}: I will remind you at {time.dt.strftime('%Y-%m-%d %H:%M:%S')} UTC ({timestamp(time.dt)}) "
         if message:
             msg += f"with the message: {message}"
         await ctx.reply(msg)
@@ -33,6 +40,7 @@ class Reminders(commands.Cog):
         reminders = await self.bot.database.get_reminders(ctx.author.id)
         if not reminders:
             return await ctx.reply(f"{ctx.author.display_name}: You have no reminders set.")
+        
         elif len(reminders) < 25:
             embed = discord.Embed(title=f"{ctx.author.display_name}'s Reminders", color=discord.Color.blue())
             for message, _, timestamp in reminders:
