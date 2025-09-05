@@ -13,7 +13,6 @@ class NoRelayException(Exception):
 
 
 class RelayMember(discord.Member):
-    __slots__ = tuple()
     """A subclass of discord.Member to signify that the member is a relay member.
     The class holds no functionality, but is used to signify that the member is a relay member for permission checks.
     """
