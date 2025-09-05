@@ -65,7 +65,7 @@ class Moderation(commands.Cog):
             channel = interaction.guild.get_channel(self.bot.config["channels"]["audit_log"])
             message = self.original_message
             if message.author.bot and message.channel.id == self.bot.config["channels"]["gamechat"]:
-                message = reformat_relay_chat(message)
+                message = reformat_relay_chat(bot, message)
             embed, attachments = await create_deletion_embed(
                 interaction.user,
                 reason,
