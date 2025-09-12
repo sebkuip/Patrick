@@ -94,7 +94,7 @@ def load_automod_regexes(bot):
     Args:
         bot (commands.Bot): The bot instance.
     """
-    bot.automod_regexes = [re.compile(regex) for regex in bot.config["automod_regexes"]]
+    bot.automod_regexes = [re.compile(regex, flags=re.IGNORECASE) for regex in bot.config["automod_regexes"]]
 
 
 def find_automod_matches(bot, message: discord.Message) -> list[str]:
