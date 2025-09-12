@@ -298,5 +298,14 @@ class RandCommands(commands.Cog):
             return await reply(ctx, "Processing took too long, terminating.")
         await reply(ctx, output)
 
+    @commands.command(help="mOcK soMeTeXt")
+    async def mock(self, ctx, *, text: str):
+        if len(text) < 3:
+            return await reply(ctx, "Text is too short. Minimum length is 3 characters.")
+        mocked = "".join(
+            c.upper() if randint(0, 1) == 0 else c.lower() for c in text
+        )
+        await reply(ctx, mocked)
+
 async def setup(bot):
     await bot.add_cog(RandCommands(bot))
