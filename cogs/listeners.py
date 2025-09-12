@@ -16,9 +16,9 @@ class Listeners(commands.Cog):
     async def on_thread_create(self, thread: discord.Thread):
         if thread.parent_id in self.bot.config["autosub_forums"]:
             role = await thread.guild.fetch_role(self.bot.config["roles"]["staff"])
-            for member in role.members:
-                m = await thread.send(member.mention, silent=True)
-                await m.delete()
+            to_send = " ".join(member.mention for member in role.members)
+            m = await thread.send(to_send, silent=True)
+            await m.delete(delay=1)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Listeners(bot))
