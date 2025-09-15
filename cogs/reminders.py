@@ -50,7 +50,7 @@ class Reminders(commands.Cog):
                     value=f"Message: {reminder[0] or '-'}",
                     inline=False
                 )
-            paginator = EmbedPaginatorSession(ctx, embeds)
+            paginator = EmbedPaginatorSession(ctx, *embeds)
             await paginator.run()
         else:
             embed = discord.Embed(title=f"{ctx.author.display_name}'s Reminders", color=discord.Color.blue())

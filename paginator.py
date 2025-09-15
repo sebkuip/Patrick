@@ -183,8 +183,8 @@ class PaginatorSession:
             If `delete` is `True`.
         """
         if self.running:
-            sent_emoji, _ = await self.ctx.bot.retrieve_emoji()
-            await self.ctx.bot.add_reaction(self.ctx.message, sent_emoji)
+            sent_emoji, = "✅"
+            await self.ctx.message.add_reaction(sent_emoji)
 
             if interaction:
                 message = interaction.message
