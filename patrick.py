@@ -215,7 +215,7 @@ class Patrick(commands.Bot):
         """
         if message.author == self.user:
             return
-        if message.content.startswith("/link"):
+        if message.guild is not None and message.content.startswith("/link"):
             # If the message starts with /link, it's probably someone trying to link their account but not selecting the command from the popup.
             await message.channel.send(
                 f"{message.author.display_name}: Please use the `/link` command from the command popup as you type. Do not type it out manually."
