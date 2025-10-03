@@ -284,12 +284,12 @@ async def create_deletion_embed(
     if len(message.message_snapshots) > 0:
         embed.add_field(
             name="Forwarded Message Content",
-            value=message.message_snapshots[0].content or "No content",
+            value=f"||{message.message_snapshots[0].content}||" or "No content",
             inline=False,
         )
         attachments = [await attachment.to_file() for attachment in message.message_snapshots[0].attachments]
     else:
-        embed.add_field(name="Message Content", value=message.content or "No content", inline=False)
+        embed.add_field(name="Message Content", value=f"||{message.content}||" or "No content", inline=False)
         attachments = [await attachment.to_file() for attachment in message.attachments]
     embed.add_field(name="Channel", value=message.channel.jump_url, inline=True)
     embed.add_field(name="Context", value=message.jump_url, inline=True)
