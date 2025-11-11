@@ -46,6 +46,11 @@ def spirograph(seed: str, width: int, height: int, length: int) -> Image.Image:
         y = int((point[1] - min_y) * scale_y) + 10
         if 2 <= x < width-2 and 2 <= y < height-2:
             img_array[x-2:x+2, y-2:y+2] = line_color
+            line_color = (
+                (line_color[0] + rng.randint(-5, 5)) % 256,
+                (line_color[1] + rng.randint(-5, 5)) % 256,
+                (line_color[2] + rng.randint(-5, 5)) % 256,
+            )
     return Image.fromarray(img_array, "RGB")
 
 spirograph("nickster", 2000, 2000, 1000).show()
