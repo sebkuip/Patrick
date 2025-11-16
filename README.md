@@ -9,7 +9,7 @@ ORE's Discord bot. Built as a replacement for [Chad](https://github.com/openReds
 Patrick uses the following software:
 
 - [Python 3.12](https://www.python.org/downloads/release/python-31210/)
-- Any python environment manager (I personally use pipenv) or bluildah/podman to run as a container
+- Any python environment manager (I personally use pipenv) or buildah/podman to run as a container
 
 ### Creating a bot account
 
