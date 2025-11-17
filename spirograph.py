@@ -23,11 +23,23 @@ def sha256_lower_long(str):
 
 def spirograph(seed: str, width: int, height: int, length: int) -> Image.Image:
     rng = Random(sha256_lower_long(seed))
-    line_color = (
+    line_color_start = (
         rng.randint(0, 255),
         rng.randint(0, 255),
         rng.randint(0, 255),
     )
+    line_color_end = (
+        rng.randint(0, 255),
+        rng.randint(0, 255),
+        rng.randint(0, 255),
+    )
+    colors = []
+    for i in range(100):
+        ratio = i / 99
+        r = int(line_color_start[0] * (1 - ratio) + line_color_end[0] * ratio)
+        g = int(line_color_start[1] * (1 - ratio) + line_color_end[1] * ratio)
+        b = int(line_color_start[2] * (1 - ratio) + line_color_end[2] * ratio)
+        colors.append((r, g, b))
     img_array = array(
         [[(0, 0, 0) for _ in range(height)] for _ in range(width)], dtype="uint8"
     )
@@ -45,12 +57,8 @@ def spirograph(seed: str, width: int, height: int, length: int) -> Image.Image:
         x = int((point[0] - min_x) * scale_x) + 10
         y = int((point[1] - min_y) * scale_y) + 10
         if 2 <= x < width-2 and 2 <= y < height-2:
-            img_array[x-2:x+2, y-2:y+2] = line_color
-            line_color = (
-                (line_color[0] + rng.randint(-5, 5)) % 256,
-                (line_color[1] + rng.randint(-5, 5)) % 256,
-                (line_color[2] + rng.randint(-5, 5)) % 256,
-            )
+            img_array[x-2:x+2, y-2:y+2] = colors[(x + y) % 100]
+
     return Image.fromarray(img_array, "RGB")
 
-spirograph("nickster", 2000, 2000, 1000).show()
+spirograph("sebkuip", 2000, 2000, 1000).show()
