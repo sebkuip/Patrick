@@ -171,7 +171,7 @@ class RandCommands(commands.Cog):
     async def slap(self, ctx, user: discord.Member):
         slap_role = discord.utils.get(ctx.guild.roles, name="Slapped")
         if slap_role is None:
-            return await reply(ctx, "No slapped rank :(")
+            return await reply(ctx, "No slapped role :(")
         if slap_role in user.roles:
             return await reply(ctx, "User is already slapped.")
         await user.add_roles(slap_role)
