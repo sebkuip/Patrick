@@ -170,8 +170,6 @@ class RandCommands(commands.Cog):
     @commands.command(help="Slap someone.")
     @commands.guild_only()
     async def slap(self, ctx, user: discord.Member):
-        if user.id == 234649992357347328:
-            return await reply(ctx, "You fool >:D")
         slap_role = discord.utils.get(ctx.guild.roles, name="Slapped")
         if slap_role is None:
             return await reply(ctx, "No slapped role :(")
