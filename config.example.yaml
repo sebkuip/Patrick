@@ -33,6 +33,10 @@ fractalDeets:
     maxIterations: 10000
     messiness: 30
     zoom: 3.5
+spirographDeets:
+    height: 2000
+    width: 2000
+    length: 1000
 automod_regexes:
   - "^test(ing)?$"
   - "f[0o]+"
