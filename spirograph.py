@@ -73,7 +73,7 @@ def spirograph(seed: str, width: int, height: int, length: int) -> Image.Image:
     scaled_points = scale_points(points, width, height)
     min_distance = min(point[2] for point in scaled_points)
     max_distance = max(point[2] for point in scaled_points)
-    scale_distance = 100 / (max_distance - min_distance) # Scaling between 0 and 99 for color indexing
+    scale_distance = 99 / (max_distance - min_distance) # Scaling between 0 and 99 for color indexing
     for point in scaled_points:
         x = point[0]
         y = point[1]
