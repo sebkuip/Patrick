@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 
 from fractal import fractal
+from spirograph import spirograph
 from brainfuck import process_brainfuck
 from util import is_staff, baseconvert, reply
 
@@ -260,8 +261,13 @@ class RandCommands(commands.Cog):
         max_iter = self.bot.config["fractalDeets"]["maxIterations"]
         messiness = self.bot.config["fractalDeets"]["messiness"]
         zoom = self.bot.config["fractalDeets"]["zoom"]
-
-        frac = await to_thread(fractal, seed, size, size, max_iter, messiness, zoom)
+        try:
+            frac = await asyncio.wait_for(
+                to_thread(fractal, seed, size, size, max_iter, messiness, zoom),
+                timeout=15.0
+            )
+        except asyncio.TimeoutError:
+            return await reply(ctx, "Fractal generation took too long, terminating.")
 
         with BytesIO() as image_binary:
             frac.save(image_binary, "PNG")
@@ -274,6 +280,28 @@ class RandCommands(commands.Cog):
         end = perf_counter()
         self.bot.logger.info(
             f"Fractal generation took {end - start:.2f} seconds for seed '{seed}'"
+        )
+
+    @commands.command(help="Generate a spirograph image using a given seed.")
+    async def spirograph(self, ctx, seed: str):
+        start = perf_counter()
+        width = self.bot.config["spirographDeets"]["width"]
+        height = self.bot.config["spirographDeets"]["height"]
+        length = self.bot.config["spirographDeets"]["length"]
+
+        img = await to_thread(spirograph, seed, width, height, length)
+
+        with BytesIO() as image_binary:
+            img.save(image_binary, "PNG")
+            image_binary.seek(0)
+            file = discord.File(fp=image_binary, filename="spirograph.png")
+            embed = discord.Embed()
+            embed.set_image(url="attachment://spirograph.png")
+            await reply(ctx, seed, file=file,  embed=embed)
+
+        end = perf_counter()
+        self.bot.logger.info(
+            f"Spirograph generation took {end - start:.2f} seconds for seed '{seed}'"
         )
 
     @commands.command(help="Be mean to someone. >:D")
