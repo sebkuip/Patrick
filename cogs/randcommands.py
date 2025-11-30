@@ -186,7 +186,7 @@ class RandCommands(commands.Cog):
     async def pikl(self, ctx, user: discord.Member):
         pikl_role = discord.utils.get(ctx.guild.roles, name="pikl")
         if pikl_role is None:
-            return await reply(ctx, "No pikl rank :(")
+            return await reply(ctx, "No pikl role :(")
         await user.add_roles(pikl_role)
         await reply(ctx, f"{user.mention} got pikl'd.", False, True)
         await asyncio.sleep(120)
