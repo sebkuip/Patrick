@@ -324,6 +324,14 @@ class RandCommands(commands.Cog):
             )
         except asyncio.TimeoutError:
             return await reply(ctx, "Processing took too long, terminating.")
+
+        if len(output) >= 2000:
+            new_output = output[1900:] + f" ({len(output)-1900} characters remaining...)"
+            if len(new_output) >= 2000:
+                # :(
+                new_output = "Output is too long to send."
+            output = new_output
+
         await reply(ctx, output)
 
     @commands.command(help="mOcK soMeTeXt")
